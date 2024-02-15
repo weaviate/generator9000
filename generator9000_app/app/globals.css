@@ -1,3 +1,9 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.rive-container {
+    height: 70px;
+    width: 300px;
+    margin: 0 auto;
+}

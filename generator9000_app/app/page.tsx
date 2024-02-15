@@ -4,16 +4,22 @@ import React, { useState, useEffect } from 'react';
 
 import DataFieldComponent from './components/datafield'
 import GenerationPodComponent from './components/generation_pod'
+import InspectModeComponent from './components/inspectcomponent';
 import { IoMdAddCircle } from "react-icons/io";
 import { v4 as uuidv4 } from 'uuid'; // Import UUID to generate unique IDs
-import { DataField, templates } from './components/types'
+import { DataField, initial_templates, Templates, Template, FieldValues } from './components/types'
 import { MdOutgoingMail } from "react-icons/md";
+import RiveComponent from '@rive-app/react-canvas';
 
 export default function Home() {
   const [dataFields, setDataFields] = useState<DataField[]>([]);
 
   const [prompt, setPrompt] = useState("")
   const [selectedTemplate, setSelectedTemplate] = useState("Empty"); // Track the selected template
+  const [templates, setTemplates] = useState<Templates>(initial_templates);
+  const [savedFieldValuesList, setSavedFieldValuesList] = useState<FieldValues[]>([]);
+  const [mode, setMode] = useState<"Generation" | "Inspect">("Generation");
+
 
   const addDataField = () => {
     const newDataField: DataField = {
@@ -31,6 +37,10 @@ export default function Home() {
 
   const updateDataField = (id: string, updatedField: Partial<DataField>) => {
     setDataFields(dataFields.map(field => field.id === id ? { ...field, ...updatedField } : field));
+  };
+
+  const saveFieldValues = (fieldValues: FieldValues) => {
+    setSavedFieldValuesList(prevList => [...prevList, fieldValues]);
   };
 
   const openDebugModal = () => {
@@ -54,6 +64,48 @@ export default function Home() {
     }
   };
 
+  const exportToJson = () => {
+    const dataToSave = {
+      prompt,
+      dataFields,
+      savedFieldValuesList
+    };
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(dataToSave));
+    const downloadAnchorNode = document.createElement('a');
+    downloadAnchorNode.setAttribute("href", dataStr);
+    downloadAnchorNode.setAttribute("download", "exported_data.json");
+    document.body.appendChild(downloadAnchorNode); // Required for Firefox
+    downloadAnchorNode.click();
+    downloadAnchorNode.remove();
+  }
+
+  const importFromJson = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files[0]) {
+      const fileReader = new FileReader();
+      fileReader.readAsText(event.target.files[0], "UTF-8");
+      fileReader.onload = e => {
+        const result = e.target?.result;
+        if (typeof result === 'string') {
+          const importedData = JSON.parse(result);
+          setPrompt(importedData.prompt);
+          setDataFields(importedData.dataFields);
+          setSavedFieldValuesList(importedData.savedFieldValuesList);
+
+          const newTemplate: Template = {
+            name: "Current File",
+            prompt: importedData.prompt,
+            datafields: importedData.dataFields
+          };
+
+          setTemplates(prevTemplates => ({
+            templates: [...prevTemplates.templates, newTemplate]
+          }));
+          setSelectedTemplate("Current File");
+        }
+      };
+    }
+  }
+
   return (
     <main className="p-8">
       <div className="navbar bg-base-100 shadow-lg rounded-lg">
@@ -63,30 +115,22 @@ export default function Home() {
               <img src="justacat.gif" />
             </div>
           </div>
-          <div className="avatar">
-            <div className="w-14 rounded-full shadow-lg">
-              <img src="gatitos-gatos.gif" />
-            </div>
-          </div>
-          <div className="avatar">
-            <div className="w-14 rounded-full shadow-lg">
-              <img src="catwork.gif" />
-            </div>
-          </div>
         </div>
         <div className='flex-1'>
-          <button className="btn btn-ghost text-xl">Generator 9000</button>
+          <div className="flex justify-center items-center">
+            <RiveComponent
+              src="generator_9000.riv"
+              className="rive-container"
+            />
+          </div>
         </div>
 
         <div className='flex-none gap-4'>
-          <button className="btn text-xs btn-success">Save As</button>
-          <button className="btn text-xs btn-accent">Load</button>
-          <div className="stats shadow">
-            <div className="stat">
-              <div className="stat-title text-xs">Objects</div>
-              <div className="stat-value text-lg">100</div>
-            </div>
-          </div>
+          <input type="file" className="text-xs file-input file-input-md file-input-bordered" onChange={importFromJson} />
+          <button className=" bg-green-400 p-4 text-xs rounded-lg shadow-lg font-bold duration-300 ease-in-out transform hover:scale-105" onClick={exportToJson}>Export ({savedFieldValuesList.length})</button>
+          <button className=" bg-blue-400 p-4 text-xs rounded-lg shadow-lg font-bold duration-300 ease-in-out transform hover:scale-105" onClick={() => setMode(mode === "Generation" ? "Inspect" : "Generation")}>
+            {mode === "Generation" ? "Inspect Objects" : "Generate Objects"}
+          </button>
         </div>
       </div>
       <div className='flex items-center justify-center mt-4'>
@@ -119,22 +163,30 @@ export default function Home() {
               />
             ))}
             <div className='flex justify-center items-center mt-3'>
-              <button className='btn btn-sm btn-circle btn-success' onClick={addDataField}>
-                <IoMdAddCircle />
+              <button className='p-4 flex justify-center items-center gap-2 rounded-lg shadow-lg bg-green-400 text-xs duration-300 ease-in-out transform hover:scale-105' onClick={addDataField}>
+                Add Datafield<IoMdAddCircle />
               </button>
             </div>
           </div>
         </div>
 
         <div className='w-2/3 p-4 flex items-center justify-between gap-5'>
-          <div className='w-1/3'>
-            <GenerationPodComponent prompt={prompt} dataFields={dataFields} />
-          </div>
-          <div className='w-1/3'>
-            <GenerationPodComponent prompt={prompt} dataFields={dataFields} />
-          </div>
-          <div className='w-1/3'>
-            <GenerationPodComponent prompt={prompt} dataFields={dataFields} />
+          <div>
+            {mode === "Generation" ? (
+              <div className='flex justify-between items-center'>
+                <div className='w-1/3'>
+                  <GenerationPodComponent onSaveFieldValues={saveFieldValues} prompt={prompt} dataFields={dataFields} />
+                </div>
+                <div className='w-1/3'>
+                  <GenerationPodComponent onSaveFieldValues={saveFieldValues} prompt={prompt} dataFields={dataFields} />
+                </div>
+                <div className='w-1/3'>
+                  <GenerationPodComponent onSaveFieldValues={saveFieldValues} prompt={prompt} dataFields={dataFields} />
+                </div>
+              </div>
+            ) : (
+              <InspectModeComponent savedFieldValuesList={savedFieldValuesList} />
+            )}
           </div>
         </div>
       </div>

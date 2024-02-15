@@ -14,7 +14,7 @@ const DataFieldComponent: React.FC<DataFieldComponentProps> = ({ dataField, dele
     return (
         <div>
             <div className='flex justify-between items-center gap-3 m-2'>
-                <button className='btn btn-sm btn-circle btn-error' onClick={deleteDataField}>
+                <button className='p-2 shadow-lg rounded-lg bg-red-400 flex justify-center items-center gap-2 text-xs' onClick={deleteDataField}>
                     <TiDelete size={17} />
                 </button>
                 <input
