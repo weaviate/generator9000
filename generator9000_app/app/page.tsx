@@ -11,6 +11,7 @@ import { DataField, initial_templates, Templates, Template, FieldValues } from '
 import { MdOutgoingMail } from "react-icons/md";
 import RiveComponent from '@rive-app/react-canvas';
 
+
 export default function Home() {
   const [dataFields, setDataFields] = useState<DataField[]>([]);
 
@@ -53,6 +54,10 @@ export default function Home() {
       // Handle the case where the modal is not found, if necessary
     }
   }
+
+  const handleDelete = (index: number) => {
+    setSavedFieldValuesList(currentList => currentList.filter((_, i) => i !== index));
+  };
 
   const handleTemplateChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const name = e.target.value;
@@ -154,6 +159,14 @@ export default function Home() {
           </div>
           <div className='p-2'>
             <p className=''>Data Fields</p>
+
+
+            {dataFields.length <= 0 && (
+              <div className='my-2 text-xs font-light flex justify-start items-center opacity-50'>
+                <p>No data fields</p>
+              </div>
+            )}
+
             {dataFields.map((field, index) => (
               <DataFieldComponent
                 key={field.id}
@@ -164,30 +177,26 @@ export default function Home() {
             ))}
             <div className='flex justify-center items-center mt-3'>
               <button className='p-4 flex justify-center items-center gap-2 rounded-lg shadow-lg bg-green-400 text-xs duration-300 ease-in-out transform hover:scale-105' onClick={addDataField}>
-                Add Datafield<IoMdAddCircle />
+                <IoMdAddCircle />
               </button>
             </div>
           </div>
         </div>
 
-        <div className='w-2/3 p-4 flex items-center justify-between gap-5'>
-          <div>
-            {mode === "Generation" ? (
-              <div className='flex justify-between items-center'>
-                <div className='w-1/3'>
-                  <GenerationPodComponent onSaveFieldValues={saveFieldValues} prompt={prompt} dataFields={dataFields} />
-                </div>
-                <div className='w-1/3'>
-                  <GenerationPodComponent onSaveFieldValues={saveFieldValues} prompt={prompt} dataFields={dataFields} />
-                </div>
-                <div className='w-1/3'>
-                  <GenerationPodComponent onSaveFieldValues={saveFieldValues} prompt={prompt} dataFields={dataFields} />
-                </div>
-              </div>
-            ) : (
-              <InspectModeComponent savedFieldValuesList={savedFieldValuesList} />
-            )}
-          </div>
+        <div className='w-2/3 p-4 flex items-center justify-center gap-5'>
+          {mode === "Generation" ? (
+            <div className='flex justify-between items-center gap-5'>
+
+              <GenerationPodComponent onSaveFieldValues={saveFieldValues} prompt={prompt} dataFields={dataFields} />
+
+              <GenerationPodComponent onSaveFieldValues={saveFieldValues} prompt={prompt} dataFields={dataFields} />
+
+              <GenerationPodComponent onSaveFieldValues={saveFieldValues} prompt={prompt} dataFields={dataFields} />
+
+            </div>
+          ) : (
+            <InspectModeComponent savedFieldValuesList={savedFieldValuesList} onDelete={handleDelete} />
+          )}
         </div>
       </div>
 
