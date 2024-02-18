@@ -4,21 +4,26 @@ import React, { useState, useEffect } from 'react';
 import { DataField, FieldValues } from './types'
 import { ImCheckmark } from "react-icons/im";
 import { FaRedoAlt } from "react-icons/fa";
-import { generateImage, generateData } from "./server_actions"
+import { generateImageBasedDescription, generateDataBasedPrompt } from "./server_actions"
 
 interface GenerationPodComponentProps {
     id: string;
     prompt: string;
+    imagePrompt: string;
     dataFields: DataField[];
     onSaveFieldValues: (fieldValues: FieldValues) => void;
     imageSize: string;
     imageStyle: string;
     temperature: number;
+    addGenerations: (add_generations: number) => void;
+    addCosts: (add_cost: number) => void;
+    addTime: (add_time: number) => void;
 }
-const GenerationPodComponent: React.FC<GenerationPodComponentProps> = ({ prompt, dataFields, onSaveFieldValues, id, imageSize, imageStyle, temperature }) => {
+const GenerationPodComponent: React.FC<GenerationPodComponentProps> = ({ prompt, imagePrompt, dataFields, onSaveFieldValues, id, imageSize, imageStyle, temperature, addGenerations, addCosts, addTime }) => {
 
     const [fieldValues, setFieldValues] = useState<{ [key: string]: string }>({});
     const [imageBase64, setImageBase64] = useState<string | null>(null);
+    const [imageLink, setImageLink] = useState("")
 
     const [generatingImage, setGeneratingImage] = useState(false);
     const [generatingData, setGeneratingData] = useState(false);
@@ -40,6 +45,17 @@ const GenerationPodComponent: React.FC<GenerationPodComponentProps> = ({ prompt,
         // Clean up the timer when the component unmounts or showAlert changes
         return () => clearTimeout(timerId);
     }, [showAlert]);
+
+    const isPodEmpty = () => {
+        // Check if the image is not set
+        const isImageEmpty = !imageBase64;
+
+        // Check if all field values are empty
+        const areFieldsEmpty = Object.values(fieldValues).every(value => value === '');
+
+        // The pod is considered empty if there's no image and all field values are empty
+        return isImageEmpty && areFieldsEmpty;
+    };
 
     const handleFieldChange = (id: string, value: string) => {
         setFieldValues(prev => ({ ...prev, [id]: value }));
@@ -81,12 +97,18 @@ const GenerationPodComponent: React.FC<GenerationPodComponentProps> = ({ prompt,
             return
         }
 
-        const modal = document.getElementById(deleteObjectModalId);
-        if (modal instanceof HTMLDialogElement) {
-            modal.showModal();
+        if (isPodEmpty()) {
+            handleGeneration();
+
         } else {
-            console.error('Modal element not found');
+            const modal = document.getElementById(deleteObjectModalId);
+            if (modal instanceof HTMLDialogElement) {
+                modal.showModal();
+            } else {
+                console.error('Modal element not found');
+            }
         }
+
     }
 
     const handleSave = () => {
@@ -112,7 +134,65 @@ const GenerationPodComponent: React.FC<GenerationPodComponentProps> = ({ prompt,
         setShowAlert(true);
     };
 
+    const regenerateImage = async () => {
+
+        const startTime = Date.now();
+
+        if (generatingImage || generatingData) {
+            return;
+        }
+
+        setGeneratingImage(true);
+
+        const fieldsDescription = dataFields.map(field => {
+            let fieldDesc = `${field.name} (${field.type})`;
+            if (field.values && field.values.length > 0) {
+                fieldDesc += ` with possible values: ${field.values.join(', ')}`;
+            }
+            return fieldDesc;
+        }).join('; ');
+
+        if (imageSize != "1024x1024" && imageSize != "1792x1024" && imageSize != "1024x1792") {
+            return;
+        }
+
+        if (imageStyle != "vivid" && imageStyle != "natural") {
+            return;
+        }
+
+
+        const image_generation_results = await generateImageBasedDescription(fieldsDescription, imagePrompt, imageSize, imageStyle);
+
+        if (image_generation_results) {
+            const generated_image = image_generation_results.image;
+            const url = image_generation_results.url;
+
+            addGenerations(1)
+
+            if (imageSize === "1024x1024") {
+                addCosts(0.080)
+            } else {
+                addCosts(0.120)
+            }
+
+            const endTime = Date.now(); // End timing
+            const timeSpent = (endTime - startTime) / 60000;
+            addTime(timeSpent)
+
+            setImageBase64(generated_image)
+            setImageLink(url)
+            setGeneratingImage(false);
+
+        } else {
+            setGeneratingImage(false);
+        }
+
+    }
+
     const handleGeneration = async () => {
+
+        const startTime = Date.now();
+
         if (generatingImage || generatingData) {
             return;
         }
@@ -120,33 +200,57 @@ const GenerationPodComponent: React.FC<GenerationPodComponentProps> = ({ prompt,
         setGeneratingImage(true);
         setGeneratingData(true);
 
-        const image_generation_results = await generateImage(prompt, imageSize, imageStyle);
+        if (imageSize != "1024x1024" && imageSize != "1792x1024" && imageSize != "1024x1792") {
+            return;
+        }
 
-        const generated_image = image_generation_results.image;
-        const revised_prompt = image_generation_results.prompt;
+        if (imageStyle != "vivid" && imageStyle != "natural") {
+            return;
+        }
 
-        if (generated_image) {
-            const imageSrc = `data:image/jpeg;base64,${generated_image}`;
-            setImageBase64(imageSrc);
-            setGeneratingImage(false);
+        const results = await generateDataBasedPrompt(prompt, dataFields, temperature);
 
-            const data = await generateData(revised_prompt, dataFields, temperature);
-            if (data) {
-                // Assuming data is a JSON string; if it's already an object, remove JSON.parse
-                const parsedData = typeof data === 'string' ? JSON.parse(data) : data;
+        const data = results.results
+        const data_cost = results.costs
 
-                // Update the fieldValues state with the generated data
-                setFieldValues(parsedData);
+        if (data) {
+            // Assuming data is a JSON string; if it's already an object, remove JSON.parse
+            const parsedData = typeof data === 'string' ? JSON.parse(data) : data;
 
-                setGeneratingData(false);
-            } else {
-                console.error("Failed to Generate Data");
-                setGeneratingData(false);
-            }
-        } else {
-            console.error("Failed to Generate Image");
-            setGeneratingImage(false);
+            // Update the fieldValues state with the generated data
+            setFieldValues(parsedData);
+            addGenerations(1)
             setGeneratingData(false);
+            addCosts(data_cost)
+
+            const image_generation_results = await generateImageBasedDescription(data, imagePrompt, imageSize, imageStyle);
+
+            if (image_generation_results) {
+                const generated_image = image_generation_results.image;
+                const url = image_generation_results.url;
+
+                setImageBase64(generated_image)
+                setImageLink(url)
+                addGenerations(1)
+                if (imageSize === "1024x1024") {
+                    addCosts(0.080)
+                } else {
+                    addCosts(0.120)
+                }
+                setGeneratingImage(false);
+                const endTime = Date.now(); // End timing
+                const timeSpent = (endTime - startTime) / 60000;
+                addTime(timeSpent)
+
+            } else {
+                setGeneratingImage(false);
+            }
+
+
+        } else {
+            console.error("Failed to Generate Data");
+            setGeneratingData(false);
+            setGeneratingImage(false);
         }
     };
 
@@ -163,10 +267,14 @@ const GenerationPodComponent: React.FC<GenerationPodComponentProps> = ({ prompt,
                         {imageBase64 && !generatingImage && (
                             <div>
                                 <div className="flex justify-center items-center mt-4">
-                                    <img src={imageBase64} alt="Uploaded" className="max-w-xs max-h-52 rounded-xl" />
+                                    <a href={imageLink}>
+                                        <img src={imageBase64} alt="Uploaded" className="max-w-xs max-h-52 rounded-xl" />
+                                    </a>
                                 </div>
-                                <div className='flex items-center justify-center'>
+                                <div className='flex items-center justify-center gap-2'>
                                     <button onClick={handleDeleteImageModal} className="p-2 bg-red-400 shadow-lg rounded-lg text-sm font-bold mt-2 duration-300 ease-in-out transform hover:scale-105">Delete Image</button>
+                                    <button onClick={regenerateImage} className="p-3 bg-blue-400 shadow-lg rounded-lg text-sm font-bold mt-2 duration-300 ease-in-out transform hover:scale-105"><FaRedoAlt /></button>
+
                                 </div>
                             </div>
                         )}

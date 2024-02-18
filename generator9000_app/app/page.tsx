@@ -9,6 +9,9 @@ import { IoMdAddCircle } from "react-icons/io";
 import { v4 as uuidv4 } from 'uuid'; // Import UUID to generate unique IDs
 import { DataField, initial_templates, Templates, Template, FieldValues } from './components/types'
 import { MdOutgoingMail } from "react-icons/md";
+import { BiObjectsVerticalBottom } from "react-icons/bi";
+import { MdAccessTime } from "react-icons/md";
+import { TbPigMoney } from "react-icons/tb";
 import RiveComponent from '@rive-app/react-canvas';
 
 
@@ -16,16 +19,32 @@ export default function Home() {
   const [dataFields, setDataFields] = useState<DataField[]>([]);
 
   const [prompt, setPrompt] = useState("")
+  const [imagePrompt, setImagePrompt] = useState("")
   const [selectedTemplate, setSelectedTemplate] = useState("Empty"); // Track the selected template
   const [templates, setTemplates] = useState<Templates>(initial_templates);
   const [savedFieldValuesList, setSavedFieldValuesList] = useState<FieldValues[]>([]);
   const [mode, setMode] = useState<"Generation" | "Inspect">("Generation");
 
   const [imageSize, setImageSize] = useState("1024x1024");
-  const [imageStyle, setImageStyle] = useState("natural")
+  const [imageStyle, setImageStyle] = useState("vivid")
 
-  const [textTemperature, setTextTemperature] = useState(0.2)
+  const [cost, setCost] = useState(0)
+  const [generations, setGenerations] = useState(0)
+  const [timeSpent, setTimeSpent] = useState(0)
 
+  const [textTemperature, setTextTemperature] = useState(1)
+
+  const addGenerations = (add_generations: number) => {
+    setGenerations(prevGenerations => prevGenerations + add_generations);
+  }
+
+  const addCosts = (add_costs: number) => {
+    setCost(prevCost => prevCost + add_costs);
+  }
+
+  const addTimeSpent = (add_time: number) => {
+    setTimeSpent(prevTimeSpent => prevTimeSpent + add_time);
+  }
 
 
   const addDataField = () => {
@@ -83,12 +102,17 @@ export default function Home() {
     if (template) {
       setPrompt(template.prompt);
       setDataFields(template.datafields);
+      setImagePrompt(template.imagePrompt)
     }
   };
 
   const exportToJson = () => {
     const dataToSave = {
       prompt,
+      cost,
+      generations,
+      timeSpent,
+      imagePrompt,
       dataFields,
       savedFieldValuesList
     };
@@ -112,9 +136,14 @@ export default function Home() {
           setPrompt(importedData.prompt);
           setDataFields(importedData.dataFields);
           setSavedFieldValuesList(importedData.savedFieldValuesList);
+          setImagePrompt(importedData.imagePrompt)
+          setCost(importedData.cost)
+          setGenerations(importedData.generations)
+          setTimeSpent(importedData.timeSpent)
 
           const newTemplate: Template = {
             name: "Current File",
+            imagePrompt: importedData.imagePrompt,
             prompt: importedData.prompt,
             datafields: importedData.dataFields
           };
@@ -174,7 +203,11 @@ export default function Home() {
               </select>
             </div>
 
+            <p className='text-xs font-light mb-1'>Data Prompt</p>
             <textarea className="textarea textarea-bordered w-full" placeholder="Enter your prompt here" value={prompt} onChange={(e) => setPrompt(e.target.value)}></textarea>
+            <p className='text-xs font-light mb-1'>Image Prompt</p>
+            <textarea className="textarea textarea-bordered w-full" placeholder="Enter your image prompt here" value={imagePrompt} onChange={(e) => setImagePrompt(e.target.value)}></textarea>
+
           </div>
           <div className='p-2'>
             <p className=''>Data Fields</p>
@@ -202,20 +235,54 @@ export default function Home() {
           </div>
         </div>
 
-        <div className='w-2/3 p-4 flex items-center justify-center gap-5'>
-          {mode === "Generation" ? (
-            <div className='flex justify-between items-center gap-5'>
+        <div className='w-2/3'>
+          <div className=' flex justify-end items-center mb-2'>
+            <div className="stats shadow">
 
-              <GenerationPodComponent key={"POD1"} id={"POD1"} onSaveFieldValues={saveFieldValues} prompt={prompt} dataFields={dataFields} imageSize={imageSize} imageStyle={imageStyle} temperature={textTemperature} />
+              <div className="stat">
+                <div className="stat-figure text-zinc-800">
+                  <BiObjectsVerticalBottom size={30} />
+                </div>
+                <div className="stat-title text-sm">Total Generations</div>
+                <div className="stat-value text-4xl">{generations}x</div>
+                <div className="stat-desc">Generations done within this session</div>
+              </div>
 
-              <GenerationPodComponent key={"POD2"} id={"POD2"} onSaveFieldValues={saveFieldValues} prompt={prompt} dataFields={dataFields} imageSize={imageSize} imageStyle={imageStyle} temperature={textTemperature} />
+              <div className="stat">
+                <div className="stat-figure text-zinc-800">
+                  <TbPigMoney size={30} />                </div>
+                <div className="stat-title text-sm">Total Costs</div>
+                <div className="stat-value text-4xl">{Number(cost.toFixed(2))}$</div>
+                <div className="stat-desc">Money spent on this session</div>
+              </div>
 
-              <GenerationPodComponent key={"POD3"} id={"POD3"} onSaveFieldValues={saveFieldValues} prompt={prompt} dataFields={dataFields} imageSize={imageSize} imageStyle={imageStyle} temperature={textTemperature} />
+              <div className="stat">
+                <div className="stat-figure text-zinc-800">
+                  <MdAccessTime size={30} />
+                </div>
+                <div className="stat-title text-sm">Total Generation Time</div>
+                <div className="stat-value text-4xl">{Number(timeSpent.toFixed(2))}min</div>
+                <div className="stat-desc">Time wasted on this session</div>
+              </div>
 
             </div>
-          ) : (
-            <InspectModeComponent savedFieldValuesList={savedFieldValuesList} onDelete={handleDelete} />
-          )}
+          </div>
+
+          <div className='p-4 flex items-center justify-center gap-5'>
+            {mode === "Generation" ? (
+              <div className='flex justify-between items-center gap-5'>
+
+                <GenerationPodComponent key={"POD1"} id={"POD1"} addGenerations={addGenerations} addCosts={addCosts} addTime={addTimeSpent} imagePrompt={imagePrompt} onSaveFieldValues={saveFieldValues} prompt={prompt} dataFields={dataFields} imageSize={imageSize} imageStyle={imageStyle} temperature={textTemperature} />
+
+                <GenerationPodComponent key={"POD2"} id={"POD2"} addGenerations={addGenerations} addCosts={addCosts} addTime={addTimeSpent} imagePrompt={imagePrompt} onSaveFieldValues={saveFieldValues} prompt={prompt} dataFields={dataFields} imageSize={imageSize} imageStyle={imageStyle} temperature={textTemperature} />
+
+                <GenerationPodComponent key={"POD3"} id={"POD3"} addGenerations={addGenerations} addCosts={addCosts} addTime={addTimeSpent} imagePrompt={imagePrompt} onSaveFieldValues={saveFieldValues} prompt={prompt} dataFields={dataFields} imageSize={imageSize} imageStyle={imageStyle} temperature={textTemperature} />
+
+              </div>
+            ) : (
+              <InspectModeComponent savedFieldValuesList={savedFieldValuesList} onDelete={handleDelete} />
+            )}
+          </div>
         </div>
       </div>
 

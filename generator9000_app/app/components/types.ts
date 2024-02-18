@@ -8,6 +8,7 @@ export interface DataField {
 export interface Template {
     name: string;
     prompt: string;
+    imagePrompt: string;
     datafields: DataField[]; // Correctly type the datafields property here
 }
 
@@ -16,8 +17,9 @@ export interface Templates {
 }
 
 export const ecommerce_template: Template = {
-    name: "E-Commerce Clothing",
-    prompt: "Generate a product image of a clothing item for an e-commerce website in a flat layout and white background.",
+    name: "E-Commerce Upper Body Clothing",
+    prompt: "Generate a clothing item product for the upper body. It can be a sweater, t-shirt, jacket, or something similar.",
+    imagePrompt: "Create a highly detailed and realistic image of a single clothing item, presented as if for an e-commerce website. The item should be either laid flat or hanging against a pure white background, with no additional items, decorations, or visual elements present. The clothing should be fully visible, capturing its texture and colors accurately, offering a clear and straightforward view suitable for online shopping.",
     datafields: [{
         id: "name",
         name: "name",
@@ -41,13 +43,32 @@ export const ecommerce_template: Template = {
         name: "price",
         type: "number",
         values: [],
+    },
+    {
+        id: "category",
+        name: "category",
+        type: "string",
+        values: ["Clothing"],
+    },
+    {
+        id: "short_description",
+        name: "short_description",
+        type: "string",
+        values: [],
+    },
+    {
+        id: "colors",
+        name: "colors",
+        type: "string[]",
+        values: ["Red", "Blue", "Green", "White", "Black", "Gray", "Yellow", "Orange", "Pink"],
     }
     ]
 }
 
 export const cat_template: Template = {
     name: "Cat",
-    prompt: "Generate an image of a cat.",
+    prompt: "Generate a cat.",
+    imagePrompt: "Generate an image of a cat",
     datafields: [{
         id: "name",
         name: "name",
@@ -71,16 +92,17 @@ export const cat_template: Template = {
 
 export const semanticlove_template: Template = {
     name: "Semantic Love",
-    prompt: "Generate a persona for a dating platform, based on this JSON. Please return the same JSON.",
+    prompt: "Generate a persona for a dating site.",
+    imagePrompt: "Generate a portrait picture of a persona for a dating platform.",
     datafields: [{
         id: "name",
-        name: "person_name",
+        name: "name",
         type: "string",
         values: [],
     },
     {
         id: "age",
-        name: "person_age",
+        name: "age",
         type: "number",
         values: [],
     },
@@ -101,6 +123,7 @@ export const semanticlove_template: Template = {
 
 export const empty_template: Template = {
     name: "Empty",
+    imagePrompt: "",
     prompt: "",
     datafields: []
 }
