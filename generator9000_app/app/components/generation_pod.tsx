@@ -2,26 +2,32 @@
 
 import React, { useState, useEffect } from 'react';
 import { DataField, FieldValues } from './types'
-import { ImCross } from "react-icons/im";
 import { ImCheckmark } from "react-icons/im";
 import { FaRedoAlt } from "react-icons/fa";
-
-
-interface StringKeyedObject {
-    [key: string]: string;
-}
+import { generateImage, generateData } from "./server_actions"
 
 interface GenerationPodComponentProps {
+    id: string;
     prompt: string;
     dataFields: DataField[];
     onSaveFieldValues: (fieldValues: FieldValues) => void;
+    imageSize: string;
+    imageStyle: string;
+    temperature: number;
 }
-const GenerationPodComponent: React.FC<GenerationPodComponentProps> = ({ prompt, dataFields, onSaveFieldValues }) => {
+const GenerationPodComponent: React.FC<GenerationPodComponentProps> = ({ prompt, dataFields, onSaveFieldValues, id, imageSize, imageStyle, temperature }) => {
 
     const [fieldValues, setFieldValues] = useState<{ [key: string]: string }>({});
     const [imageBase64, setImageBase64] = useState<string | null>(null);
 
+    const [generatingImage, setGeneratingImage] = useState(false);
+    const [generatingData, setGeneratingData] = useState(false);
+
     const [showAlert, setShowAlert] = useState(false);
+
+    const imageInputId = `imageInput-${id}`;
+    const deleteImageModalId = `delete_image_modal-${id}`;
+    const deleteObjectModalId = `delete_object_modal-${id}`;
 
     useEffect(() => {
         let timerId: ReturnType<typeof setTimeout>;
@@ -56,7 +62,12 @@ const GenerationPodComponent: React.FC<GenerationPodComponentProps> = ({ prompt,
     };
 
     const handleDeleteImageModal = () => {
-        const modal = document.getElementById('delete_image_modal');
+
+        if (generatingImage) {
+            return
+        }
+
+        const modal = document.getElementById(deleteImageModalId);
         if (modal instanceof HTMLDialogElement) {
             modal.showModal();
         } else {
@@ -65,7 +76,12 @@ const GenerationPodComponent: React.FC<GenerationPodComponentProps> = ({ prompt,
     }
 
     const handleDeleteObjectModal = () => {
-        const modal = document.getElementById('delete_object_modal');
+
+        if (generatingImage) {
+            return
+        }
+
+        const modal = document.getElementById(deleteObjectModalId);
         if (modal instanceof HTMLDialogElement) {
             modal.showModal();
         } else {
@@ -74,6 +90,11 @@ const GenerationPodComponent: React.FC<GenerationPodComponentProps> = ({ prompt,
     }
 
     const handleSave = () => {
+
+        if (generatingImage) {
+            return
+        }
+
         const fieldValuesByName = Object.keys(fieldValues).reduce((acc: { [key: string]: string }, currentId) => {
             // Find the field in dataFields by id
             const field = dataFields.find(field => field.id === currentId);
@@ -91,12 +112,55 @@ const GenerationPodComponent: React.FC<GenerationPodComponentProps> = ({ prompt,
         setShowAlert(true);
     };
 
+    const handleGeneration = async () => {
+        if (generatingImage || generatingData) {
+            return;
+        }
+
+        setGeneratingImage(true);
+        setGeneratingData(true);
+
+        const image_generation_results = await generateImage(prompt, imageSize, imageStyle);
+
+        const generated_image = image_generation_results.image;
+        const revised_prompt = image_generation_results.prompt;
+
+        if (generated_image) {
+            const imageSrc = `data:image/jpeg;base64,${generated_image}`;
+            setImageBase64(imageSrc);
+            setGeneratingImage(false);
+
+            const data = await generateData(revised_prompt, dataFields, temperature);
+            if (data) {
+                // Assuming data is a JSON string; if it's already an object, remove JSON.parse
+                const parsedData = typeof data === 'string' ? JSON.parse(data) : data;
+
+                // Update the fieldValues state with the generated data
+                setFieldValues(parsedData);
+
+                setGeneratingData(false);
+            } else {
+                console.error("Failed to Generate Data");
+                setGeneratingData(false);
+            }
+        } else {
+            console.error("Failed to Generate Image");
+            setGeneratingImage(false);
+            setGeneratingData(false);
+        }
+    };
+
     return (
-        <div>
+        <div className=''>
             <div className='shadow-xl rounded-lg p-4 justify-center items-center'>
                 <div className='bg-transparent h-full rounded-xl p-4'>
                     <div className='flex justify-center items-center'>
-                        {imageBase64 ? (
+                        {generatingImage && (
+                            <div className='flex items-center justify-center m-2'>
+                                <span className="loading loading-spinner loading-lg"></span>
+                            </div>
+                        )}
+                        {imageBase64 && !generatingImage && (
                             <div>
                                 <div className="flex justify-center items-center mt-4">
                                     <img src={imageBase64} alt="Uploaded" className="max-w-xs max-h-52 rounded-xl" />
@@ -105,11 +169,13 @@ const GenerationPodComponent: React.FC<GenerationPodComponentProps> = ({ prompt,
                                     <button onClick={handleDeleteImageModal} className="p-2 bg-red-400 shadow-lg rounded-lg text-sm font-bold mt-2 duration-300 ease-in-out transform hover:scale-105">Delete Image</button>
                                 </div>
                             </div>
-                        ) : (
+                        )}
+                        {!imageBase64 && !generatingImage && (
                             <div>
-                                <button onClick={() => document.getElementById('imageInput')?.click()} className="p-4 shadow-lg rounded-lg bg-zinc-100 text-xs font-semibold duration-300 ease-in-out transform hover:scale-105">Add Image</button>
-                                <input id="imageInput" type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
+                                <button onClick={() => document.getElementById(imageInputId)?.click()} className="p-4 shadow-lg rounded-lg bg-zinc-100 text-xs font-semibold duration-300 ease-in-out transform hover:scale-105">Add Image</button>
+                                <input id={imageInputId} type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
                             </div>
+
                         )}
                     </div>
                 </div>
@@ -119,8 +185,11 @@ const GenerationPodComponent: React.FC<GenerationPodComponentProps> = ({ prompt,
                             <div className='flex items-center justify-start w-1/3'>
                                 <label className="text-sm font-light">{field.name}</label>
                             </div>
-                            <div>
-                                <input value={fieldValues[field.id] || ''}
+                            <div className='flex gap-2'>
+                                {generatingData && (
+                                    <span className="loading loading-dots loading-sm"></span>
+                                )}
+                                <input value={fieldValues[field.id] || ''} disabled={generatingData}
                                     onChange={(e) => handleFieldChange(field.id, e.target.value)} type="text" placeholder="" className="input input-sm input-bordered rounded-xl w-full" />
                             </div>
                         </div>
@@ -153,7 +222,7 @@ const GenerationPodComponent: React.FC<GenerationPodComponentProps> = ({ prompt,
                 </div>
             </div>
 
-            <dialog id="delete_image_modal" className="modal">
+            <dialog id={deleteImageModalId} className="modal">
                 <div className="modal-box">
                     <h3 className="font-bold text-lg">Delete Image?</h3>
                     <p className="py-4">Do you want to remove the image from the object?</p>
@@ -166,13 +235,13 @@ const GenerationPodComponent: React.FC<GenerationPodComponentProps> = ({ prompt,
                 </div>
             </dialog>
 
-            <dialog id="delete_object_modal" className="modal">
+            <dialog id={deleteObjectModalId} className="modal">
                 <div className="modal-box">
                     <h3 className="font-bold text-lg">Generate new object?</h3>
                     <p className="py-4">Remove current object and generate new?</p>
                     <div className="modal-action">
                         <form method="dialog">
-                            <button className="btn bg-blue-400 hover:bg-blue-300" onClick={() => { resetFieldValues(); setImageBase64(null) }} >Re-Generate</button>
+                            <button className="btn bg-blue-400 hover:bg-blue-300" onClick={() => { resetFieldValues(); setImageBase64(null); handleGeneration(); }} >Re-Generate</button>
                             <button className="btn ml-2">No</button>
                         </form>
                     </div>

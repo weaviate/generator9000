@@ -16,29 +16,29 @@ export interface Templates {
 }
 
 export const ecommerce_template: Template = {
-    name: "E-Commerce",
-    prompt: "Generate an E-Commerce Fashion Product in the domain of Fashion, based on this JSON. Please return the same JSON.",
+    name: "E-Commerce Clothing",
+    prompt: "Generate a product image of a clothing item for an e-commerce website in a flat layout and white background.",
     datafields: [{
-        id: "product_name",
-        name: "product_name",
+        id: "name",
+        name: "name",
         type: "string",
         values: [],
     },
     {
-        id: "product_brand",
-        name: "product_brand",
+        id: "brand",
+        name: "brand",
         type: "string",
         values: [],
     },
     {
-        id: "product_category",
-        name: "product_category",
-        type: "string[]",
-        values: ["shoes", "clothing", "sportswear", "accessoires"],
+        id: "gender",
+        name: "gender",
+        type: "string",
+        values: ["male", "female", "unisex"],
     },
     {
-        id: "product_price",
-        name: "product_price",
+        id: "price",
+        name: "price",
         type: "number",
         values: [],
     }
@@ -47,7 +47,7 @@ export const ecommerce_template: Template = {
 
 export const cat_template: Template = {
     name: "Cat",
-    prompt: "Generate a cat based on this JSON. Please return the same JSON.",
+    prompt: "Generate an image of a cat.",
     datafields: [{
         id: "name",
         name: "name",

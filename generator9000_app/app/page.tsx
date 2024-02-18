@@ -21,6 +21,12 @@ export default function Home() {
   const [savedFieldValuesList, setSavedFieldValuesList] = useState<FieldValues[]>([]);
   const [mode, setMode] = useState<"Generation" | "Inspect">("Generation");
 
+  const [imageSize, setImageSize] = useState("1024x1024");
+  const [imageStyle, setImageStyle] = useState("natural")
+
+  const [textTemperature, setTextTemperature] = useState(0.2)
+
+
 
   const addDataField = () => {
     const newDataField: DataField = {
@@ -46,6 +52,17 @@ export default function Home() {
 
   const openDebugModal = () => {
     const modal = document.getElementById('debug_modal');
+
+    if (modal instanceof HTMLDialogElement) {
+      modal.showModal();
+    } else {
+      console.error('Debug modal not found');
+      // Handle the case where the modal is not found, if necessary
+    }
+  }
+
+  const openSettingsModal = () => {
+    const modal = document.getElementById('settings_modal');
 
     if (modal instanceof HTMLDialogElement) {
       modal.showModal();
@@ -126,6 +143,7 @@ export default function Home() {
             <RiveComponent
               src="generator_9000.riv"
               className="rive-container"
+              stateMachines={"State Machine 1"}
             />
           </div>
         </div>
@@ -136,9 +154,10 @@ export default function Home() {
           <button className=" bg-blue-400 p-4 text-xs rounded-lg shadow-lg font-bold duration-300 ease-in-out transform hover:scale-105" onClick={() => setMode(mode === "Generation" ? "Inspect" : "Generation")}>
             {mode === "Generation" ? "Inspect Objects" : "Generate Objects"}
           </button>
+          <button className=" bg-gray-300 p-4 text-xs rounded-lg shadow-lg font-bold duration-300 ease-in-out transform hover:scale-105" onClick={() => { openSettingsModal() }}>Settings</button>
         </div>
       </div>
-      <div className='flex items-center justify-center mt-4'>
+      <div className='flex justify-center mt-4'>
         <div className='w-1/3'>
           <div className='p-2'>
             <div className='flex justify-between items-center mb-4'>
@@ -187,11 +206,11 @@ export default function Home() {
           {mode === "Generation" ? (
             <div className='flex justify-between items-center gap-5'>
 
-              <GenerationPodComponent onSaveFieldValues={saveFieldValues} prompt={prompt} dataFields={dataFields} />
+              <GenerationPodComponent key={"POD1"} id={"POD1"} onSaveFieldValues={saveFieldValues} prompt={prompt} dataFields={dataFields} imageSize={imageSize} imageStyle={imageStyle} temperature={textTemperature} />
 
-              <GenerationPodComponent onSaveFieldValues={saveFieldValues} prompt={prompt} dataFields={dataFields} />
+              <GenerationPodComponent key={"POD2"} id={"POD2"} onSaveFieldValues={saveFieldValues} prompt={prompt} dataFields={dataFields} imageSize={imageSize} imageStyle={imageStyle} temperature={textTemperature} />
 
-              <GenerationPodComponent onSaveFieldValues={saveFieldValues} prompt={prompt} dataFields={dataFields} />
+              <GenerationPodComponent key={"POD3"} id={"POD3"} onSaveFieldValues={saveFieldValues} prompt={prompt} dataFields={dataFields} imageSize={imageSize} imageStyle={imageStyle} temperature={textTemperature} />
 
             </div>
           ) : (
@@ -215,6 +234,64 @@ export default function Home() {
           <button>close</button>
         </form>
       </dialog>
+
+
+      <dialog id="settings_modal" className="modal">
+        <div className="modal-box">
+          <h3 className="font-bold text-lg">Settings</h3>
+
+          {/* Image Size Selection */}
+          <div className="form-control w-full max-w-xs">
+            <label className="label">
+              <span className="label-text">Image Size</span>
+            </label>
+            <select className="select select-bordered"
+              value={imageSize}
+              onChange={(e) => setImageSize(e.target.value)}>
+              <option value="1024x1024">1024x1024</option>
+              <option value="1792x1024">1792x1024</option>
+              <option value="1024x1792">1024x1792</option>
+            </select>
+          </div>
+
+          {/* Image Style Selection */}
+          <div className="form-control w-full max-w-xs">
+            <label className="label">
+              <span className="label-text">Image Style</span>
+            </label>
+            <select className="select select-bordered"
+              value={imageStyle}
+              onChange={(e) => setImageStyle(e.target.value)}>
+              <option value="natural">Natural</option>
+              <option value="vivid">Vivid</option>
+            </select>
+          </div>
+
+          {/* Temperature Slider */}
+          <div className="form-control w-full max-w-xs">
+            <label className="label">
+              <span className="label-text">Text Temperature (0 - 1)</span>
+            </label>
+            <input type="range" min="0" max="1" step="0.01"
+              className="range range-xs"
+              value={textTemperature}
+              onChange={(e) => setTextTemperature(parseFloat(e.target.value))} />
+            <div className="w-full flex justify-between text-xs px-2">
+              <span>0</span>
+              <span>1</span>
+            </div>
+          </div>
+
+
+          <div className="modal-action">
+            <form method="dialog">
+              <button className="btn bg-green-400 hover:bg-blue-300" onClick={() => { }} >Apply</button>
+              <button className="btn ml-2">Cancel</button>
+            </form>
+          </div>
+        </div>
+      </dialog>
+
     </main>
   );
 }
