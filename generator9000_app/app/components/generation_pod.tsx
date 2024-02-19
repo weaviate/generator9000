@@ -267,7 +267,7 @@ const GenerationPodComponent: React.FC<GenerationPodComponentProps> = ({ prompt,
                         {imageBase64 && !generatingImage && (
                             <div>
                                 <div className="flex justify-center items-center mt-4">
-                                    <a href={imageLink}>
+                                    <a href={imageLink} target="_blank" rel="noopener noreferrer">
                                         <img src={imageBase64} alt="Uploaded" className="max-w-xs max-h-52 rounded-xl" />
                                     </a>
                                 </div>

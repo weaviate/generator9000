@@ -7,12 +7,15 @@ import GenerationPodComponent from './components/generation_pod'
 import InspectModeComponent from './components/inspectcomponent';
 import { IoMdAddCircle } from "react-icons/io";
 import { v4 as uuidv4 } from 'uuid'; // Import UUID to generate unique IDs
+
 import { DataField, initial_templates, Templates, Template, FieldValues } from './components/types'
 import { MdOutgoingMail } from "react-icons/md";
 import { BiObjectsVerticalBottom } from "react-icons/bi";
 import { MdAccessTime } from "react-icons/md";
 import { TbPigMoney } from "react-icons/tb";
 import RiveComponent from '@rive-app/react-canvas';
+
+import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 
 
 export default function Home() {
@@ -33,6 +36,32 @@ export default function Home() {
   const [timeSpent, setTimeSpent] = useState(0)
 
   const [textTemperature, setTextTemperature] = useState(1)
+
+  const router = useRouter();
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+
+  useEffect(() => {
+
+    const _template = searchParams.get('template')
+
+    if (_template) {
+      setSelectedTemplate(_template)
+      const template = templates.templates.find(t => t.name === _template);
+      if (template) {
+        setPrompt(template.prompt);
+        setDataFields(template.datafields);
+        setImagePrompt(template.imagePrompt)
+      }
+    }
+    else {
+      const newSearchParams = new URLSearchParams(searchParams.toString());
+      newSearchParams.set('template', "Empty");
+      router.push(`/?${newSearchParams}`, { scroll: false });
+    }
+
+  }, [searchParams]);
+
 
   const addGenerations = (add_generations: number) => {
     setGenerations(prevGenerations => prevGenerations + add_generations);
@@ -98,6 +127,9 @@ export default function Home() {
   const handleTemplateChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const name = e.target.value;
     setSelectedTemplate(name); // Update the selected template state
+    const newSearchParams = new URLSearchParams(searchParams.toString());
+    newSearchParams.set('template', name);
+    router.push(`/?${newSearchParams}`, { scroll: false });
     const template = templates.templates.find(t => t.name === name);
     if (template) {
       setPrompt(template.prompt);

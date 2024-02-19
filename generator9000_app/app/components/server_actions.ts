@@ -22,6 +22,16 @@ async function downloadImageAsBase64(imageUrl: string) {
     return `data:${response.headers.get('content-type')};base64,${buffer.toString('base64')}`;
 }
 
+function generateSeed(): number {
+    // Get the current time as a timestamp in milliseconds
+    const timestamp = new Date().getTime();
+
+    // Convert the timestamp to a string
+    const seedString = timestamp;
+
+    return seedString;
+}
+
 export async function generateImageBasedPrompt(prompt: string, size: "1024x1024" | "1792x1024" | "1024x1792", style: "vivid" | "natural"): Promise<any> {
     try {
         console.log("Generating Image")
@@ -131,8 +141,6 @@ export async function generateData(imageUrl: string, dataFields: DataField[], te
 
 
 export async function generateDataBasedPrompt(user_prompt: string, dataFields: DataField[], temperature: number): Promise<any> {
-    console.log("GENERATING DATA");
-
     try {
         const fieldsDescription = dataFields.map(field => {
             let fieldDesc = `${field.name} (${field.type})`;
@@ -147,6 +155,7 @@ export async function generateDataBasedPrompt(user_prompt: string, dataFields: D
         const completion = await openai.chat.completions.create({
             model: "gpt-4-turbo-preview",
             temperature: temperature,
+            seed: generateSeed(),
             messages: [
                 { role: "system", content: prompt },
             ],
