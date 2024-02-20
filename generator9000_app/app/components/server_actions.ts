@@ -22,15 +22,21 @@ async function downloadImageAsBase64(imageUrl: string) {
     return `data:${response.headers.get('content-type')};base64,${buffer.toString('base64')}`;
 }
 
-function generateSeed(): number {
-    // Get the current time as a timestamp in milliseconds
-    const timestamp = new Date().getTime();
+function generateNumericSeed(): number {
+    // Get the current datetime as a Unix timestamp (milliseconds since the Unix epoch)
+    const now = Date.now();
 
-    // Convert the timestamp to a string
-    const seedString = timestamp;
+    // Generate a random number. Here, we scale it to ensure it adds a significant but manageable random component
+    const randomPart = Math.floor(Math.random() * 1000);
 
-    return seedString;
+    // Combine the datetime and the random number to form the seed
+    // Note: This simplistic approach just appends the random part to the timestamp, which should be sufficient for many use cases
+    const seed = now * 1000 + randomPart;
+
+    return seed;
 }
+
+
 
 export async function generateImageBasedPrompt(prompt: string, size: "1024x1024" | "1792x1024" | "1024x1792", style: "vivid" | "natural"): Promise<any> {
     try {
@@ -155,7 +161,7 @@ export async function generateDataBasedPrompt(user_prompt: string, dataFields: D
         const completion = await openai.chat.completions.create({
             model: "gpt-4-turbo-preview",
             temperature: temperature,
-            seed: generateSeed(),
+            seed: generateNumericSeed(),
             messages: [
                 { role: "system", content: prompt },
             ],

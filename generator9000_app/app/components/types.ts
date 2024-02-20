@@ -1,29 +1,13 @@
-const clothingMaterials = [
-    "Cotton",
-    "Polyester",
-    "Wool",
-    "Silk",
-    "Linen",
-    "Rayon",
-    "Nylon",
-    "Spandex",
-    "Leather",
-    "Denim",
-    "Velvet",
-    "Chiffon",
-    "Lace",
-    "Satin",
-    "Cashmere",
-    "Bamboo",
-    "Hemp",
-    "Modal",
-    "Lyocell (Tencel)",
-    "Acrylic"
-];
+const categories = [
+    "Clothing",
+    "Shoes",
+    "Accessories",
+    "Outerwear",
+]
 
 const clothingSubCategories = [
     "Tops",
-    "T-Shirt",
+    "T-Shirts",
     "Sweaters",
     "Trousers",
     "Jeans",
@@ -31,6 +15,28 @@ const clothingSubCategories = [
     "Skirts",
     "Dresses",
     "Formal"
+]
+
+const shoesSubCategories = [
+    "Sneakers",
+    "Boots",
+    "Sandals",
+    "Heels",
+    "Dress Shoes"
+]
+
+const accessoriesSubCategories = [
+    "Jewelry",
+    "Watches",
+    "Hats",
+    "Belts",
+    "Glasses",
+]
+
+const outerwearSubCategories = [
+    "Jackets",
+    "Coats",
+    "Blazers"
 ]
 
 const brands = [
@@ -46,13 +52,27 @@ const brands = [
     "Hunter"
 ];
 
-const colors = [
-    "Red", "Blue", "Green", "White", "Black", "Gray", "Yellow", "Orange", "Pink", "Purple", "Beige"
+const clothingMaterials = [
+    "Cotton",
+    "Polyester",
+    "Wool",
+    "Silk",
+    "Linen",
+    "Nylon",
+    "Spandex",
+    "Leather",
+    "Denim",
+    "Velvet",
+    "Lace",
+    "Satin",
+    "Cashmere",
+    "Hemp",
 ];
 
 const accessoryMaterials = [
     "Stainless Steel",
     "Titanium",
+    "Adamantium",
     "Gold",
     "Silver",
     "Platinum",
@@ -60,9 +80,7 @@ const accessoryMaterials = [
     "Carbon Fiber",
     "Rubber",
     "Silicone",
-    "Sapphire Crystal",
     "Mineral Glass",
-    "Acetate",
     "Polycarbonate",
     "Wood",
     "Ceramic",
@@ -70,6 +88,29 @@ const accessoryMaterials = [
     "Nylon",
     "Brass",
     "Bronze"
+];
+
+const colors = [
+    "Red",
+    "Blue",
+    "Green",
+    "White",
+    "Black",
+    "Gray",
+    "Yellow",
+    "Orange",
+    "Pink",
+    "Purple",
+    "Beige",
+    "Teal",
+    "Brown",
+    "Petrol",
+    "Olive",
+    "Lilac",
+    "Gold",
+    "Silver",
+    "Orange",
+    "Turquoise"
 ];
 
 
@@ -214,6 +255,44 @@ export const electronics_template: Template = {
     ]
 }
 
+export const fastfood_template: Template = {
+    name: "FastFood",
+    prompt: "Generate a fastfood item for a restaurant menu.",
+    imagePrompt: "Create a highly detailed and realistic image of a single food item, presented as if for an menu. The item should be placed on a white plate against a pure white background, with no additional items, decorations, or visual elements present. The food item should be fully visible, capturing its texture and colors accurately, offering a clear and straightforward view.",
+    datafields: [{
+        id: "name",
+        name: "name",
+        type: "string",
+        values: [],
+    },
+    {
+        id: "price",
+        name: "price",
+        type: "number",
+        values: [],
+    },
+    {
+        id: "ingredients",
+        name: "ingredients",
+        type: "string[]",
+        values: [],
+    },
+    {
+        id: "calories",
+        name: "calories",
+        type: "number",
+        values: [],
+    },
+    {
+        id: "description",
+        name: "description",
+        type: "string",
+        values: [],
+    }
+    ]
+}
+
+
 export const empty_template: Template = {
     name: "Empty",
     imagePrompt: "",
@@ -226,8 +305,8 @@ export const clothing_template: Template = {
     prompt: "Generate a fashion clothing item product. It can be Tops, T-Shirts, Sweaters, Trousers, Jeans, Shorts, Skirts, Dresses, Formal",
     imagePrompt: "Create a highly detailed and realistic image of a single clothing item, presented as if for an e-commerce website. The item should be either laid flat or hanging against a pure white background, with no additional items, decorations, or visual elements present. The clothing should be fully visible, capturing its texture and colors accurately, offering a clear and straightforward view suitable for online shopping.",
     datafields: [{
-        id: "title",
-        name: "title",
+        id: "name",
+        name: "name",
         type: "string",
         values: [],
     },
@@ -238,10 +317,10 @@ export const clothing_template: Template = {
         values: brands
     },
     {
-        id: "gender",
-        name: "gender",
+        id: "category",
+        name: "category",
         type: "string",
-        values: ["male", "female", "unisex"],
+        values: ["Clothing"],
     },
     {
         id: "sub_category",
@@ -262,12 +341,6 @@ export const clothing_template: Template = {
         values: ["1", "2", "3", "4", "5"],
     },
     {
-        id: "category",
-        name: "category",
-        type: "string",
-        values: ["Clothing"],
-    },
-    {
         id: "description",
         name: "description",
         type: "string",
@@ -280,10 +353,65 @@ export const clothing_template: Template = {
         values: clothingMaterials,
     },
     {
-        id: "age",
-        name: "age",
+        id: "colors",
+        name: "colors",
+        type: "string[]",
+        values: colors,
+    }
+    ]
+}
+
+export const shoes_template: Template = {
+    name: "Shoes",
+    prompt: "Generate a shoe fashion product. It can be: " + shoesSubCategories,
+    imagePrompt: "Create a highly detailed and realistic image of a single clothing item, presented as if for an e-commerce website. The item should be either laid flat or hanging against a pure white background, with no additional items, decorations, or visual elements present. The clothing should be fully visible, capturing its texture and colors accurately, offering a clear and straightforward view suitable for online shopping.",
+    datafields: [{
+        id: "name",
+        name: "name",
         type: "string",
-        values: ["kids", "adults", "seniors"],
+        values: [],
+    },
+    {
+        id: "brand",
+        name: "brand",
+        type: "string",
+        values: brands
+    },
+    {
+        id: "category",
+        name: "category",
+        type: "string",
+        values: ["Shoes"],
+    },
+    {
+        id: "sub_category",
+        name: "sub_category",
+        type: "string",
+        values: shoesSubCategories,
+    },
+    {
+        id: "price",
+        name: "price",
+        type: "number",
+        values: [],
+    },
+    {
+        id: "rating",
+        name: "rating",
+        type: "number",
+        values: ["1", "2", "3", "4", "5"],
+    },
+    {
+        id: "description",
+        name: "description",
+        type: "string",
+        values: [],
+    },
+    {
+        id: "material",
+        name: "material",
+        type: "string[]",
+        values: clothingMaterials,
     },
     {
         id: "colors",
@@ -294,9 +422,132 @@ export const clothing_template: Template = {
     ]
 }
 
+export const accessoires_template: Template = {
+    name: "Accessories",
+    prompt: "Generate a accessories fashion product. Please use up to two colors only. Generate a short description that is not too marketing but rather short and precise",
+    imagePrompt: "Create a highly detailed and realistic image of a single accessories item with only one color combination, presented as if for an e-commerce website. The item should be either laid flat or hanging against a pure white background, with no additional items, decorations, or visual elements present. The clothing should be fully visible, capturing its texture and colors accurately, offering a clear and straightforward view suitable for online shopping.",
+    datafields: [{
+        id: "name",
+        name: "name",
+        type: "string",
+        values: [],
+    },
+    {
+        id: "brand",
+        name: "brand",
+        type: "string",
+        values: brands
+    },
+    {
+        id: "category",
+        name: "category",
+        type: "string",
+        values: ["Accessories"],
+    },
+    {
+        id: "sub_category",
+        name: "sub_category",
+        type: "string",
+        values: accessoriesSubCategories,
+    },
+    {
+        id: "price",
+        name: "price",
+        type: "number",
+        values: [],
+    },
+    {
+        id: "rating",
+        name: "rating",
+        type: "number",
+        values: ["1", "2", "3", "4", "5"],
+    },
+    {
+        id: "description",
+        name: "description",
+        type: "string",
+        values: [],
+    },
+    {
+        id: "material",
+        name: "material",
+        type: "string[]",
+        values: accessoryMaterials,
+    },
+    {
+        id: "colors",
+        name: "colors",
+        type: "string[]",
+        values: colors,
+    }
+    ]
+}
+
+export const outerwear_template: Template = {
+    name: "Outerwear",
+    prompt: "Generate a Outerwear fashion product. Please use up to two colors only. Generate a short description that is not too marketing but rather short and precise. Be creative with the naming and dont use words like Lunar, Eclipse, Twilights, Moon",
+    imagePrompt: "Create a highly detailed and realistic image of a single accessories item with only one color combination, presented as if for an e-commerce website. The item should be either laid flat or hanging against a pure white background, with no additional items, decorations, or visual elements present. The clothing should be fully visible, capturing its texture and colors accurately, offering a clear and straightforward view suitable for online shopping.",
+    datafields: [{
+        id: "name",
+        name: "name",
+        type: "string",
+        values: [],
+    },
+    {
+        id: "brand",
+        name: "brand",
+        type: "string",
+        values: brands
+    },
+    {
+        id: "category",
+        name: "category",
+        type: "string",
+        values: ["Outerwear"],
+    },
+    {
+        id: "sub_category",
+        name: "sub_category",
+        type: "string",
+        values: outerwearSubCategories,
+    },
+    {
+        id: "price",
+        name: "price",
+        type: "number",
+        values: [],
+    },
+    {
+        id: "rating",
+        name: "rating",
+        type: "number",
+        values: ["1", "2", "3", "4", "5"],
+    },
+    {
+        id: "description",
+        name: "description",
+        type: "string",
+        values: [],
+    },
+    {
+        id: "material",
+        name: "material",
+        type: "string[]",
+        values: clothingMaterials,
+    },
+    {
+        id: "colors",
+        name: "colors",
+        type: "string[]",
+        values: colors,
+    }
+    ]
+}
+
+
 export interface FieldValues {
     [key: string]: string | null;
     imageBase64: string | null; // Now explicitly required but can be null
 }
 
-export const initial_templates: Templates = { templates: [empty_template, dating_template, cat_template, electronics_template, clothing_template] }
+export const initial_templates: Templates = { templates: [empty_template, outerwear_template, accessoires_template, fastfood_template, shoes_template, dating_template, cat_template, electronics_template, clothing_template] }

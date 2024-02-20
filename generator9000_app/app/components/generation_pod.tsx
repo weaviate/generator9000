@@ -57,8 +57,8 @@ const GenerationPodComponent: React.FC<GenerationPodComponentProps> = ({ prompt,
         return isImageEmpty && areFieldsEmpty;
     };
 
-    const handleFieldChange = (id: string, value: string) => {
-        setFieldValues(prev => ({ ...prev, [id]: value }));
+    const handleFieldChange = (fieldName: string, value: string) => {
+        setFieldValues(prev => ({ ...prev, [fieldName]: value }));
     };
 
     const resetFieldValues = () => {
@@ -128,7 +128,7 @@ const GenerationPodComponent: React.FC<GenerationPodComponentProps> = ({ prompt,
         }, {} as { [key: string]: string }); // Cast the initial value of reduce to the correct type
 
         // Proceed with your saving logic
-        onSaveFieldValues({ ...fieldValuesByName, imageBase64 });
+        onSaveFieldValues({ ...fieldValuesByName, imageBase64, imageLink });
         resetFieldValues();
         setImageBase64(null);
         setShowAlert(true);
@@ -297,8 +297,8 @@ const GenerationPodComponent: React.FC<GenerationPodComponentProps> = ({ prompt,
                                 {generatingData && (
                                     <span className="loading loading-dots loading-sm"></span>
                                 )}
-                                <input value={fieldValues[field.id] || ''} disabled={generatingData}
-                                    onChange={(e) => handleFieldChange(field.id, e.target.value)} type="text" placeholder="" className="input input-sm input-bordered rounded-xl w-full" />
+                                <input value={fieldValues[field.name] || ''} disabled={generatingData}
+                                    onChange={(e) => handleFieldChange(field.name, e.target.value)} type="text" placeholder="" className="input input-sm input-bordered rounded-xl w-full" />
                             </div>
                         </div>
                     ))}

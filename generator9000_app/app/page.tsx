@@ -37,6 +37,8 @@ export default function Home() {
 
   const [textTemperature, setTextTemperature] = useState(1)
 
+  const [generationPodNumber, setGenerationPodNumber] = useState(3);
+
   const router = useRouter();
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -148,14 +150,25 @@ export default function Home() {
       dataFields,
       savedFieldValuesList
     };
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(dataToSave));
+
+    // Create a Blob from the data
+    const blob = new Blob([JSON.stringify(dataToSave, null, 2)], { type: 'application/json' });
+
+    // Create a URL for the blob
+    const url = URL.createObjectURL(blob);
+
+    // Create a temporary anchor element and trigger the download
     const downloadAnchorNode = document.createElement('a');
-    downloadAnchorNode.setAttribute("href", dataStr);
-    downloadAnchorNode.setAttribute("download", "exported_data.json");
-    document.body.appendChild(downloadAnchorNode); // Required for Firefox
+    downloadAnchorNode.href = url;
+    downloadAnchorNode.download = "exported_data.json"; // Default file name; user can change it if their browser is set to ask
+    document.body.appendChild(downloadAnchorNode); // Firefox requires the element to be in the DOM to trigger download
     downloadAnchorNode.click();
-    downloadAnchorNode.remove();
+    downloadAnchorNode.remove(); // Clean up
+
+    // Release the blob URL to free up resources
+    URL.revokeObjectURL(url);
   }
+
 
   const importFromJson = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
@@ -294,22 +307,31 @@ export default function Home() {
                 </div>
                 <div className="stat-title text-sm">Total Generation Time</div>
                 <div className="stat-value text-4xl">{Number(timeSpent.toFixed(2))}min</div>
-                <div className="stat-desc">Time wasted on this session</div>
+                <div className="stat-desc">Time saved on this session (actual time {Number((timeSpent / 3).toFixed(2))}min)</div>
               </div>
 
             </div>
           </div>
 
-          <div className='p-4 flex items-center justify-center gap-5'>
+          <div className=''>
             {mode === "Generation" ? (
-              <div className='flex justify-between items-center gap-5'>
-
-                <GenerationPodComponent key={"POD1"} id={"POD1"} addGenerations={addGenerations} addCosts={addCosts} addTime={addTimeSpent} imagePrompt={imagePrompt} onSaveFieldValues={saveFieldValues} prompt={prompt} dataFields={dataFields} imageSize={imageSize} imageStyle={imageStyle} temperature={textTemperature} />
-
-                <GenerationPodComponent key={"POD2"} id={"POD2"} addGenerations={addGenerations} addCosts={addCosts} addTime={addTimeSpent} imagePrompt={imagePrompt} onSaveFieldValues={saveFieldValues} prompt={prompt} dataFields={dataFields} imageSize={imageSize} imageStyle={imageStyle} temperature={textTemperature} />
-
-                <GenerationPodComponent key={"POD3"} id={"POD3"} addGenerations={addGenerations} addCosts={addCosts} addTime={addTimeSpent} imagePrompt={imagePrompt} onSaveFieldValues={saveFieldValues} prompt={prompt} dataFields={dataFields} imageSize={imageSize} imageStyle={imageStyle} temperature={textTemperature} />
-
+              <div className='flex justify-center items-center gap-5 p-4'>
+                {Array.from({ length: generationPodNumber }, (_, index) => (
+                  <GenerationPodComponent
+                    key={`POD${index + 1}`}
+                    id={`POD${index + 1}`}
+                    addGenerations={addGenerations}
+                    addCosts={addCosts}
+                    addTime={addTimeSpent}
+                    imagePrompt={imagePrompt}
+                    onSaveFieldValues={saveFieldValues}
+                    prompt={prompt}
+                    dataFields={dataFields}
+                    imageSize={imageSize}
+                    imageStyle={imageStyle}
+                    temperature={textTemperature}
+                  />
+                ))}
               </div>
             ) : (
               <InspectModeComponent savedFieldValuesList={savedFieldValuesList} onDelete={handleDelete} />
@@ -338,6 +360,16 @@ export default function Home() {
       <dialog id="settings_modal" className="modal">
         <div className="modal-box">
           <h3 className="font-bold text-lg">Settings</h3>
+
+          <div className="form-control w-full max-w-xs">
+            <label className="label">
+              <span className="label-text">Number of Generation Pods</span>
+            </label>
+            <input type="number" className="input input-bordered" min="1" max="10" // Assuming a max of 10 for UI/UX reasons
+              value={generationPodNumber}
+              onChange={(e) => setGenerationPodNumber(parseInt(e.target.value) || 1)} // Ensure we always have a valid number
+            />
+          </div>
 
           {/* Image Size Selection */}
           <div className="form-control w-full max-w-xs">
