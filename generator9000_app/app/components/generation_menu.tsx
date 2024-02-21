@@ -38,6 +38,9 @@ const GenerationMenuComponent: React.FC<GenerationMenuComponentProps> = ({ gener
     const [textTemperature, setTextTemperature] = useState(1)
     const [generationPodNumber, setGenerationPodNumber] = useState(5);
 
+    const [shouldGenerate, setShouldGenerate] = useState(false);
+    const [shouldSave, setShouldSave] = useState(false);
+
     const addGenerations = (add_generations: number) => {
         setGenerations(generations + add_generations);
     }
@@ -50,11 +53,20 @@ const GenerationMenuComponent: React.FC<GenerationMenuComponentProps> = ({ gener
         setTimeSpent(timeSpent + add_time);
     }
 
+    const onGenerationComplete = () => {
+        setShouldGenerate(false)
+    }
+
+    const onSaveComplete = () => {
+        setShouldSave(false)
+    }
+
+
     return (
         <div>
             <div className=' flex justify-end items-center mb-2 gap-5'>
 
-                <div onClick={() => { }} className='flex items-center justify-center bg-emerald-400 hover:bg-emerald-300 shadow-lg p-4 h-24 w-24 rounded-lg duration-300 ease-in-out transform hover:scale-105' >
+                <div onClick={() => { setShouldSave(true) }} className='flex items-center justify-center bg-emerald-400 hover:bg-emerald-300 shadow-lg p-4 h-24 w-24 rounded-lg duration-300 ease-in-out transform hover:scale-105' >
                     <div className="tooltip" data-tip="Save All">
                         <button className='btn bg-transparent hover:bg-transparent btn-ghost'>
                             <ImCheckmark />
@@ -62,7 +74,7 @@ const GenerationMenuComponent: React.FC<GenerationMenuComponentProps> = ({ gener
                     </div>
                 </div>
 
-                <div onClick={() => { }} className='flex items-center justify-center bg-cyan-400 hover:bg-cyan-300 shadow-lg p-4 h-24 w-24 rounded-lg duration-300 ease-in-out transform hover:scale-105' >
+                <div onClick={() => { setShouldGenerate(true) }} className='flex items-center justify-center bg-cyan-400 hover:bg-cyan-300 shadow-lg p-4 h-24 w-24 rounded-lg duration-300 ease-in-out transform hover:scale-105' >
                     <div className="tooltip" data-tip="Generate All">
                         <button className='btn bg-transparent hover:bg-transparent btn-ghost'>
                             <FaRedoAlt />
@@ -118,6 +130,10 @@ const GenerationMenuComponent: React.FC<GenerationMenuComponentProps> = ({ gener
                                 imageSize={imageSize}
                                 imageStyle={imageStyle}
                                 temperature={textTemperature}
+                                shouldGenerate={shouldGenerate}
+                                onGenerationComplete={onGenerationComplete}
+                                shouldSave={shouldSave}
+                                onSaveComplete={onSaveComplete}
                             />
                         ))}
                     </div>

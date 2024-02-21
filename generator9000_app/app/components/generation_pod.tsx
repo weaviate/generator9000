@@ -15,12 +15,16 @@ interface GenerationPodComponentProps {
     imageSize: string;
     imageStyle: string;
     temperature: number;
+    shouldGenerate: boolean;
+    onGenerationComplete: () => void;
+    shouldSave: boolean;
+    onSaveComplete: () => void;
     addGenerations: (add_generations: number) => void;
     addCosts: (add_cost: number) => void;
     addTime: (add_time: number) => void;
 
 }
-const GenerationPodComponent: React.FC<GenerationPodComponentProps> = ({ prompt, imagePrompt, dataFields, onSaveObject, id, imageSize, imageStyle, temperature, addGenerations, addCosts, addTime }) => {
+const GenerationPodComponent: React.FC<GenerationPodComponentProps> = ({ prompt, imagePrompt, shouldGenerate, shouldSave, dataFields, onSaveObject, onSaveComplete, id, imageSize, imageStyle, temperature, addGenerations, addCosts, addTime, onGenerationComplete }) => {
 
     const [fieldValues, setFieldValues] = useState<{ [key: string]: string }>({});
     const [imageBase64, setImageBase64] = useState<string | null>(null);
@@ -30,6 +34,7 @@ const GenerationPodComponent: React.FC<GenerationPodComponentProps> = ({ prompt,
     const [generatingData, setGeneratingData] = useState(false);
 
     const [showAlert, setShowAlert] = useState(false);
+    const [showEmptyAlert, setShowEmptyAlert] = useState(false);
 
     const imageInputId = `imageInput-${id}`;
     const deleteImageModalId = `delete_image_modal-${id}`;
@@ -46,6 +51,38 @@ const GenerationPodComponent: React.FC<GenerationPodComponentProps> = ({ prompt,
         // Clean up the timer when the component unmounts or showAlert changes
         return () => clearTimeout(timerId);
     }, [showAlert]);
+
+    useEffect(() => {
+        let timerId: ReturnType<typeof setTimeout>;
+        if (showEmptyAlert) {
+            // Set a timer to hide the alert after 3 seconds
+            timerId = setTimeout(() => {
+                setShowEmptyAlert(false);
+            }, 3000);
+        }
+        // Clean up the timer when the component unmounts or showAlert changes
+        return () => clearTimeout(timerId);
+    }, [showEmptyAlert]);
+
+    useEffect(() => {
+        if (shouldGenerate) {
+            // Perform the generation logic here...
+            handleGeneration().then(() => {
+                // Notify the parent component that generation is complete
+                onGenerationComplete();
+            });
+        }
+    }, [shouldGenerate, onGenerationComplete]);
+
+    useEffect(() => {
+        if (shouldSave) {
+            // Perform the generation logic here...
+            handleSave().then(() => {
+                // Notify the parent component that generation is complete
+                onSaveComplete();
+            });
+        }
+    }, [shouldSave, onSaveComplete]);
 
     const isPodEmpty = () => {
         // Check if the image is not set
@@ -112,9 +149,12 @@ const GenerationPodComponent: React.FC<GenerationPodComponentProps> = ({ prompt,
 
     }
 
-    const handleSave = () => {
+    const handleSave = async () => {
 
         if (generatingImage) {
+            return
+        } else if (isPodEmpty()) {
+            setShowEmptyAlert(true);
             return
         }
 
@@ -328,6 +368,13 @@ const GenerationPodComponent: React.FC<GenerationPodComponentProps> = ({ prompt,
                 <div className="flex gap-2 bg-green-400 shadow-md p-4 mx-4 rounded-lg text-xs items-center ">
                     <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                     <span>Saved Object!</span>
+                </div>
+            </div>
+
+            <div className={`${showEmptyAlert ? 'opacity-100' : 'opacity-0'} transition-opacity duration-1000`} role="alert" >
+                <div className="flex gap-2 bg-red-400 shadow-md p-4 mx-4 rounded-lg text-xs items-center ">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    <span>I refuse to save empty objects!</span>
                 </div>
             </div>
 
