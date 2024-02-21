@@ -298,8 +298,8 @@ export const empty_template: Template = {
 
 export const clothing_template: Template = {
     name: "Clothing",
-    prompt: "Generate a fashion clothing item product. It can be Tops, T-Shirts, Sweaters, Trousers, Jeans, Shorts, Skirts, Dresses, Formal",
-    imagePrompt: "Create a highly detailed and realistic image of a single clothing item, presented as if for an e-commerce website. The item should be either laid flat or hanging against a pure white background, with no additional items, decorations, or visual elements present. The clothing should be fully visible, capturing its texture and colors accurately, offering a clear and straightforward view suitable for online shopping.",
+    prompt: "Generate a fashion clothing item product in these categories: T-Shirts, Sweaters, Trousers, Jeans, Shorts, Skirts, Dresses, Formal. Only use 1 or 2 colors, write short and precise descriptions. Be creative with the naming and the descriptions.",
+    imagePrompt: "Create a highly detailed and realistic image of a single clothing item with only one color combination, presented as if for an e-commerce website. The item should be either laid flat or hanging against a pure white background, with no additional items, decorations, or visual elements present. The clothing should be fully visible, capturing its texture and colors accurately, offering a clear and straightforward view suitable for online shopping.",
     datafields: [{
         id: "name",
         name: "name",
@@ -345,7 +345,7 @@ export const clothing_template: Template = {
     {
         id: "material",
         name: "material",
-        type: "string",
+        type: "string[]",
         values: clothingMaterials,
     },
     {
@@ -542,7 +542,6 @@ export const outerwear_template: Template = {
 
 export interface GeneratedObject {
     [key: string]: string | null;
-    imageBase64: string | null; // Now explicitly required but can be null
 }
 
 export const initial_templates: Template[] = [empty_template, outerwear_template, accessoires_template, fastfood_template, shoes_template, dating_template, cat_template, electronics_template, clothing_template]

@@ -7,7 +7,7 @@ import PromptMenuComponent from './components/prompt_menu';
 import GenerationMenuComponent from './components/generation_menu';
 
 import { DataField, initial_templates, Template, GeneratedObject } from './components/types'
-import { exportAllToJson, importAllFromJson } from './components/data_actions'
+import { exportAllToJson, importAllFromJson, exportJson } from './components/data_actions'
 
 export default function Home() {
   const [dataFields, setDataFields] = useState<DataField[]>([]);
@@ -38,6 +38,10 @@ export default function Home() {
     exportAllToJson(prompt, imagePrompt, cost, generations, timeSpent, dataFields, generatedObjects)
   }
 
+  const handleExportJSON = () => {
+    exportJson(generatedObjects)
+  }
+
   const handleImportAllFromJSON = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const data = await importAllFromJson(event)
 
@@ -59,7 +63,7 @@ export default function Home() {
   return (
     <main className="p-8">
 
-      <NavbarComponent importAllFromJson={handleImportAllFromJSON} exportAllToJson={handleExportAllToJSON} mode={mode} setMode={setMode} generatedObjects={generatedObjects} />
+      <NavbarComponent importAllFromJson={handleImportAllFromJSON} exportAllToJson={handleExportAllToJSON} mode={mode} setMode={setMode} generatedObjects={generatedObjects} handleExportJSON={handleExportJSON} />
 
       <div className='flex justify-center mt-4'>
         <div className='w-1/3'>

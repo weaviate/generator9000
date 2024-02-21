@@ -2,6 +2,12 @@
 
 import { DataField } from './types'
 
+import { S3Client } from "@aws-sdk/client-s3";
+import { Upload } from "@aws-sdk/lib-storage";
+import { PutObjectCommandInput } from "@aws-sdk/client-s3";
+
+
+
 import OpenAI from "openai";
 
 const openai = new OpenAI();
@@ -9,6 +15,7 @@ const openai = new OpenAI();
 import fetch from 'node-fetch';
 
 import { get_encoding } from "tiktoken";
+import { String } from 'aws-sdk/clients/appstream';
 
 const enc = get_encoding("gpt2");
 
@@ -35,8 +42,6 @@ function generateNumericSeed(): number {
 
     return seed;
 }
-
-
 
 export async function generateImageBasedPrompt(prompt: string, size: "1024x1024" | "1792x1024" | "1024x1792", style: "vivid" | "natural"): Promise<any> {
     try {
@@ -222,3 +227,47 @@ export async function generateImageBasedDescription(image_description: string, p
     }
 }
 
+async function downloadImage(imageUrl: string) {
+    const response = await fetch(imageUrl);
+    if (!response.ok) {
+        throw new Error(`Failed to fetch image: ${response.statusText}`);
+    }
+    return response.buffer(); // Return a buffer
+}
+
+export async function uploadToAWS(imageUrl: string, fileName: string) {
+    const s3Client = new S3Client({
+        region: "us-east-1",
+        credentials: {
+            accessKeyId: process.env.AWS_ACCESS_KEY_ID || '', // Fallback to empty string if undefined
+            secretAccessKey: process.env.AWS_ACCESS_SECRET || '', // Fallback to empty string if undefined
+        }
+    });
+
+    const bucketName = process.env.AWS_BUCKET_NAME || 'default-bucket-name';
+    const data = await downloadImage(imageUrl)
+
+    if (data) {
+        const params: PutObjectCommandInput = {
+            Bucket: bucketName,
+            Key: fileName + ".png",
+            Body: data,
+            ContentType: 'image/png',
+        };
+
+        try {
+            // Using lib-storage to manage the upload
+            const upload = new Upload({
+                client: s3Client,
+                params
+            });
+
+            const result = await upload.done();
+            console.log("Upload success", result);
+            return result;
+        } catch (error) {
+            console.error("Upload failed", error);
+            throw new Error("Failed to upload to AWS S3");
+        }
+    }
+}

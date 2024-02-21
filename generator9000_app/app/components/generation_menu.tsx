@@ -13,6 +13,8 @@ import { ImCheckmark } from "react-icons/im";
 import GenerationPodComponent from './generation_pod'
 import InspectModeComponent from './inspect';
 
+import ExportModalComponent from './export_modal';
+
 interface GenerationMenuComponentProps {
 
     generations: number
@@ -37,6 +39,9 @@ const GenerationMenuComponent: React.FC<GenerationMenuComponentProps> = ({ gener
     const [imageStyle, setImageStyle] = useState("vivid")
     const [textTemperature, setTextTemperature] = useState(1)
     const [generationPodNumber, setGenerationPodNumber] = useState(5);
+
+    const [includeImageBase64, setIncludeImageBase64] = useState(true);
+    const [selectedBucket, setSelectedBucket] = useState('No Bucket');
 
     const [shouldGenerate, setShouldGenerate] = useState(false);
     const [shouldSave, setShouldSave] = useState(false);
@@ -134,6 +139,8 @@ const GenerationMenuComponent: React.FC<GenerationMenuComponentProps> = ({ gener
                                 onGenerationComplete={onGenerationComplete}
                                 shouldSave={shouldSave}
                                 onSaveComplete={onSaveComplete}
+                                includeImageBase64={includeImageBase64}
+                                selectedBucket={selectedBucket}
                             />
                         ))}
                     </div>
@@ -143,7 +150,7 @@ const GenerationMenuComponent: React.FC<GenerationMenuComponentProps> = ({ gener
             </div>
 
             <SettingsModalComponent generationPodNumber={generationPodNumber} setGenerationPodNumber={setGenerationPodNumber} imageSize={imageSize} setImageSize={setImageSize} imageStyle={imageStyle} setImageStyle={setImageStyle} textTemperature={textTemperature} setTextTemperature={setTextTemperature} />
-
+            <ExportModalComponent includeImageBase64={includeImageBase64} setIncludeImageBase64={setIncludeImageBase64} setSelectedBucket={setSelectedBucket} selectedBucket={selectedBucket} />
 
         </div>
     );

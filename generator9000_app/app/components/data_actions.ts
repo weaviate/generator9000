@@ -59,26 +59,53 @@ export const importAllFromJson = async (event: React.ChangeEvent<HTMLInputElemen
             fileReader.readAsText(event.target.files[0], "UTF-8");
             fileReader.onload = e => {
                 const result = e.target?.result;
-                if (typeof result === 'string') {
-                    const importedData = JSON.parse(result);
+                try {
+                    if (typeof result === 'string') {
+                        const importedData = JSON.parse(result);
 
-                    const newTemplate: Template = {
-                        name: "Current File",
-                        imagePrompt: importedData.imagePrompt,
-                        prompt: importedData.prompt,
-                        datafields: importedData.dataFields
-                    };
+                        // Check if the imported data is an array (assuming it's an array of generatedObjects)
+                        if (Array.isArray(importedData)) {
+                            // Handle the array case
+                            const template: Template = {
+                                name: "Imported Objects",
+                                imagePrompt: "",
+                                prompt: "",
+                                datafields: []
+                            };
 
-                    resolve({
-                        prompt: importedData.prompt,
-                        imagePrompt: importedData.imagePrompt,
-                        datafields: importedData.dataFields,
-                        generatedObjects: importedData.generatedObjects,
-                        cost: importedData.cost,
-                        generations: importedData.generations,
-                        timeSpent: importedData.timeSpent,
-                        template: newTemplate
-                    });
+                            resolve({
+                                prompt: "",
+                                imagePrompt: "",
+                                datafields: [],
+                                generatedObjects: importedData,
+                                cost: 0,
+                                generations: 0,
+                                timeSpent: 0,
+                                template: template
+                            });
+                        } else {
+                            // Handle the object case
+                            const newTemplate: Template = {
+                                name: "Current File",
+                                imagePrompt: importedData.imagePrompt,
+                                prompt: importedData.prompt,
+                                datafields: importedData.dataFields
+                            };
+
+                            resolve({
+                                prompt: importedData.prompt,
+                                imagePrompt: importedData.imagePrompt,
+                                datafields: importedData.dataFields,
+                                generatedObjects: importedData.generatedObjects,
+                                cost: importedData.cost,
+                                generations: importedData.generations,
+                                timeSpent: importedData.timeSpent,
+                                template: newTemplate
+                            });
+                        }
+                    }
+                } catch (error) {
+                    reject(new Error("Failed to parse JSON."));
                 }
             };
             fileReader.onerror = (error) => {

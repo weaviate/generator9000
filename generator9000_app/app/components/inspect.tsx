@@ -39,13 +39,23 @@ const InspectModeComponent: React.FC<InspectComponentProps> = ({ generatedObject
                 <div key={index} className="card bg-base-100 shadow-xl m-2">
                     <div className="card-body">
                         <div className='flex justify-between gap-4 items-center'>
-                            <h2 className="card-title text-base">Object #{index + 1}</h2>
+                            {fieldValues.id ? (
+                                <h2 className="card-title text-base">{fieldValues.id}</h2>
+                            ) : (
+                                <h2 className="card-title text-base">Object #{index + 1}</h2>
+                            )}
+
                             <button onClick={() => handleDeleteObjectModal(index)} className="p-2 bg-red-400 shadow-md rounded-xl duration-300 ease-in-out transform hover:scale-105 max-w-sm"><TiDelete /></button>
                         </div>
                         {fieldValues.imageBase64 ? (
                             <img src={fieldValues.imageBase64} alt={`Uploaded Object ${index + 1}`} className="max-w-full h-auto" />
                         ) : (
                             <p>No Image</p>
+                        )}
+                        {fieldValues.imageURL ? (
+                            <img src={fieldValues.imageURL} alt={`Uploaded Object ${index + 1}`} className="max-w-full h-auto" />
+                        ) : (
+                            <p></p>
                         )}
                         <pre className='text-xs'>{JSON.stringify({ ...fieldValues, imageBase64: undefined }, null, 2)}</pre>
                     </div>

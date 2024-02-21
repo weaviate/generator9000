@@ -4,13 +4,18 @@ import React, { useState, useEffect } from 'react';
 import { DataField, GeneratedObject } from './types'
 import { ImCheckmark } from "react-icons/im";
 import { FaRedoAlt } from "react-icons/fa";
-import { generateImageBasedDescription, generateDataBasedPrompt } from "./server_actions"
+import { generateImageBasedDescription, generateDataBasedPrompt, uploadToAWS } from "./server_actions"
+
+import { v4 as uuidv4 } from 'uuid';
+
 
 interface GenerationPodComponentProps {
     id: string;
     prompt: string;
     imagePrompt: string;
     dataFields: DataField[];
+    includeImageBase64: boolean;
+    selectedBucket: string;
     onSaveObject: (generatedObject: GeneratedObject) => void;
     imageSize: string;
     imageStyle: string;
@@ -24,7 +29,8 @@ interface GenerationPodComponentProps {
     addTime: (add_time: number) => void;
 
 }
-const GenerationPodComponent: React.FC<GenerationPodComponentProps> = ({ prompt, imagePrompt, shouldGenerate, shouldSave, dataFields, onSaveObject, onSaveComplete, id, imageSize, imageStyle, temperature, addGenerations, addCosts, addTime, onGenerationComplete }) => {
+
+const GenerationPodComponent: React.FC<GenerationPodComponentProps> = ({ includeImageBase64, selectedBucket, prompt, imagePrompt, shouldGenerate, shouldSave, dataFields, onSaveObject, onSaveComplete, id, imageSize, imageStyle, temperature, addGenerations, addCosts, addTime, onGenerationComplete }) => {
 
     const [fieldValues, setFieldValues] = useState<{ [key: string]: string }>({});
     const [imageBase64, setImageBase64] = useState<string | null>(null);
@@ -32,6 +38,7 @@ const GenerationPodComponent: React.FC<GenerationPodComponentProps> = ({ prompt,
 
     const [generatingImage, setGeneratingImage] = useState(false);
     const [generatingData, setGeneratingData] = useState(false);
+    const [uploading, setUploading] = useState(false);
 
     const [showAlert, setShowAlert] = useState(false);
     const [showEmptyAlert, setShowEmptyAlert] = useState(false);
@@ -131,7 +138,7 @@ const GenerationPodComponent: React.FC<GenerationPodComponentProps> = ({ prompt,
 
     const handleDeleteObjectModal = () => {
 
-        if (generatingImage) {
+        if (generatingImage || generatingData || uploading) {
             return
         }
 
@@ -151,7 +158,7 @@ const GenerationPodComponent: React.FC<GenerationPodComponentProps> = ({ prompt,
 
     const handleSave = async () => {
 
-        if (generatingImage) {
+        if (generatingImage || generatingData || uploading) {
             return
         } else if (isPodEmpty()) {
             setShowEmptyAlert(true);
@@ -168,11 +175,36 @@ const GenerationPodComponent: React.FC<GenerationPodComponentProps> = ({ prompt,
             return acc;
         }, {} as { [key: string]: string }); // Cast the initial value of reduce to the correct type
 
-        // Proceed with your saving logic
-        onSaveObject({ ...fieldValuesByName, imageBase64, imageLink });
-        resetFieldValues();
-        setImageBase64(null);
-        setShowAlert(true);
+        const uniqueId = uuidv4();
+
+        if (includeImageBase64) {
+            onSaveObject({ ...fieldValuesByName, id: uniqueId, imageBase64 });
+        } else {
+            onSaveObject({ ...fieldValuesByName, id: uniqueId });
+        }
+
+        if (selectedBucket === "AWS Bucket" && imageBase64) {
+            setUploading(true)
+
+            const response = await uploadToAWS(imageLink, uniqueId)
+
+            if (response) {
+                console.log("UPLOADED?")
+                setUploading(false)
+                resetFieldValues();
+                setImageBase64(null);
+                setShowAlert(true);
+            } else {
+                setUploading(false)
+            }
+
+        } else {
+
+            resetFieldValues();
+            setImageBase64(null);
+            setShowAlert(true);
+            setUploading(false)
+        }
     };
 
     const regenerateImage = async () => {
@@ -234,7 +266,7 @@ const GenerationPodComponent: React.FC<GenerationPodComponentProps> = ({ prompt,
 
         const startTime = Date.now();
 
-        if (generatingImage || generatingData) {
+        if (generatingImage || generatingData || uploading) {
             return;
         }
 
@@ -313,8 +345,8 @@ const GenerationPodComponent: React.FC<GenerationPodComponentProps> = ({ prompt,
                                     </a>
                                 </div>
                                 <div className='flex items-center justify-center gap-2'>
-                                    <button onClick={handleDeleteImageModal} className="p-2 bg-red-400 shadow-lg rounded-lg text-sm font-bold mt-2 duration-300 ease-in-out transform hover:scale-105">Delete Image</button>
-                                    <button onClick={regenerateImage} className="p-3 bg-blue-400 shadow-lg rounded-lg text-sm font-bold mt-2 duration-300 ease-in-out transform hover:scale-105"><FaRedoAlt /></button>
+                                    <button disabled={uploading} onClick={handleDeleteImageModal} className="p-2 bg-red-400 shadow-lg rounded-lg text-sm font-bold mt-2 duration-300 ease-in-out transform hover:scale-105">Delete Image</button>
+                                    <button disabled={uploading} onClick={regenerateImage} className="p-3 bg-blue-400 shadow-lg rounded-lg text-sm font-bold mt-2 duration-300 ease-in-out transform hover:scale-105"><FaRedoAlt /></button>
 
                                 </div>
                             </div>
@@ -338,7 +370,7 @@ const GenerationPodComponent: React.FC<GenerationPodComponentProps> = ({ prompt,
                                 {generatingData && (
                                     <span className="loading loading-dots loading-sm"></span>
                                 )}
-                                <input value={fieldValues[field.name] || ''} disabled={generatingData}
+                                <input value={fieldValues[field.name] || ''} disabled={generatingData || uploading}
                                     onChange={(e) => handleFieldChange(field.name, e.target.value)} type="text" placeholder="" className="input input-sm input-bordered rounded-xl w-full" />
                             </div>
                         </div>
@@ -348,8 +380,11 @@ const GenerationPodComponent: React.FC<GenerationPodComponentProps> = ({ prompt,
             <div className='flex justify-between items-center gap-2 m-2'>
                 <div onClick={handleSave} className='flex items-center justify-center w-full hover:bg-green-300 bg-green-400 shadow-lg p-4 h-24 rounded-lg duration-300 ease-in-out transform hover:scale-105'>
                     <div className="tooltip" data-tip="Save Object">
+
                         <button className='btn bg-transparent hover:bg-transparent btn-ghost'>
-                            <ImCheckmark />
+                            {
+                                uploading ? (<span className="loading loading-bars loading-sm"></span>) : (<ImCheckmark />)
+                            }
                         </button>
                     </div>
                 </div>

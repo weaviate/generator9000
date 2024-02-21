@@ -77,7 +77,7 @@ const SettingsModalComponent: React.FC<SettingsModalComponentProps> = ({ generat
 
                 <div className="modal-action">
                     <form method="dialog">
-                        <button className="btn bg-green-400 hover:bg-blue-300" onClick={() => { }} >Apply</button>
+                        <button className="btn bg-green-400 hover:bg-blue-300" onClick={() => { }} >Accept</button>
                         <button className="btn ml-2">Cancel</button>
                     </form>
                 </div>
