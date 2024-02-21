@@ -128,10 +128,6 @@ export interface Template {
     datafields: DataField[]; // Correctly type the datafields property here
 }
 
-export interface Templates {
-    templates: Template[];
-}
-
 export const cat_template: Template = {
     name: "Cat",
     prompt: "Craft a vivid and detailed description of a unique cat, incorporating elements such as its breed, distinctive physical characteristics, personality traits, and any remarkable story or background. Focus on painting a picture with words that brings the cat to life for the reader, highlighting its interactions with its environment, its preferences, and any quirks that make it stand out. Aim for a narrative that not only informs but also captivates, weaving in factual elements about the breed with creative storytelling to make the description as engaging and memorable as possible.",
@@ -544,10 +540,20 @@ export const outerwear_template: Template = {
     ]
 }
 
-
-export interface FieldValues {
+export interface GeneratedObject {
     [key: string]: string | null;
     imageBase64: string | null; // Now explicitly required but can be null
 }
 
-export const initial_templates: Templates = { templates: [empty_template, outerwear_template, accessoires_template, fastfood_template, shoes_template, dating_template, cat_template, electronics_template, clothing_template] }
+export const initial_templates: Template[] = [empty_template, outerwear_template, accessoires_template, fastfood_template, shoes_template, dating_template, cat_template, electronics_template, clothing_template]
+
+export interface importAllPayload {
+    prompt: string,
+    imagePrompt: string,
+    datafields: DataField[],
+    generatedObjects: GeneratedObject[],
+    cost: number,
+    generations: number,
+    timeSpent: number,
+    template: Template
+}

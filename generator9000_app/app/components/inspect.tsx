@@ -1,15 +1,14 @@
-// In InspectModeComponent.js
-import React, { useState, useEffect } from 'react';
-import { DataField, FieldValues } from './types'
+import React, { useState } from 'react';
+import { GeneratedObject } from './types'
 import { TiDelete } from "react-icons/ti";
 
 interface InspectComponentProps {
-    savedFieldValuesList: FieldValues[];
+    generatedObjects: GeneratedObject[];
     onDelete: (index: number) => void;
 
 }
 
-const InspectModeComponent: React.FC<InspectComponentProps> = ({ savedFieldValuesList, onDelete }) => {
+const InspectModeComponent: React.FC<InspectComponentProps> = ({ generatedObjects, onDelete }) => {
 
     const [deleteCandidateIndex, setDeleteCandidateIndex] = useState<number | null>(null);
 
@@ -36,7 +35,7 @@ const InspectModeComponent: React.FC<InspectComponentProps> = ({ savedFieldValue
 
     return (
         <div className='grid grid-cols-3 gap-4 justify-center items-center'>
-            {savedFieldValuesList.map((fieldValues, index) => (
+            {generatedObjects.map((fieldValues, index) => (
                 <div key={index} className="card bg-base-100 shadow-xl m-2">
                     <div className="card-body">
                         <div className='flex justify-between gap-4 items-center'>

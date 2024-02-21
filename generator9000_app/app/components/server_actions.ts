@@ -1,6 +1,6 @@
 'use server'
 
-import { DataField, FieldValues } from './types'
+import { DataField } from './types'
 
 import OpenAI from "openai";
 
@@ -8,7 +8,7 @@ const openai = new OpenAI();
 
 import fetch from 'node-fetch';
 
-import { get_encoding, encoding_for_model } from "tiktoken";
+import { get_encoding } from "tiktoken";
 
 const enc = get_encoding("gpt2");
 

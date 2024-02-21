@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react';
-import { DataField, FieldValues } from './types'
+import { DataField, GeneratedObject } from './types'
 import { ImCheckmark } from "react-icons/im";
 import { FaRedoAlt } from "react-icons/fa";
 import { generateImageBasedDescription, generateDataBasedPrompt } from "./server_actions"
@@ -11,15 +11,16 @@ interface GenerationPodComponentProps {
     prompt: string;
     imagePrompt: string;
     dataFields: DataField[];
-    onSaveFieldValues: (fieldValues: FieldValues) => void;
+    onSaveObject: (generatedObject: GeneratedObject) => void;
     imageSize: string;
     imageStyle: string;
     temperature: number;
     addGenerations: (add_generations: number) => void;
     addCosts: (add_cost: number) => void;
     addTime: (add_time: number) => void;
+
 }
-const GenerationPodComponent: React.FC<GenerationPodComponentProps> = ({ prompt, imagePrompt, dataFields, onSaveFieldValues, id, imageSize, imageStyle, temperature, addGenerations, addCosts, addTime }) => {
+const GenerationPodComponent: React.FC<GenerationPodComponentProps> = ({ prompt, imagePrompt, dataFields, onSaveObject, id, imageSize, imageStyle, temperature, addGenerations, addCosts, addTime }) => {
 
     const [fieldValues, setFieldValues] = useState<{ [key: string]: string }>({});
     const [imageBase64, setImageBase64] = useState<string | null>(null);
@@ -128,7 +129,7 @@ const GenerationPodComponent: React.FC<GenerationPodComponentProps> = ({ prompt,
         }, {} as { [key: string]: string }); // Cast the initial value of reduce to the correct type
 
         // Proceed with your saving logic
-        onSaveFieldValues({ ...fieldValuesByName, imageBase64, imageLink });
+        onSaveObject({ ...fieldValuesByName, imageBase64, imageLink });
         resetFieldValues();
         setImageBase64(null);
         setShowAlert(true);
