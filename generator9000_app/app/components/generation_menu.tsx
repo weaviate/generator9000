@@ -86,7 +86,7 @@ const GenerationMenuComponent: React.FC<GenerationMenuComponentProps> = ({ addGe
                         </div>
                         <div className="stat-title text-sm">Total Generations</div>
                         <div className="stat-value text-4xl">{generations}x</div>
-                        <div className="stat-desc">Generations done within this session</div>
+                        <div className="stat-desc">Generations this session</div>
                     </div>
 
                     <div className="stat">
@@ -94,7 +94,7 @@ const GenerationMenuComponent: React.FC<GenerationMenuComponentProps> = ({ addGe
                             <TbPigMoney size={30} />                </div>
                         <div className="stat-title text-sm">Total Costs</div>
                         <div className="stat-value text-4xl">{Number(cost.toFixed(2))}$</div>
-                        <div className="stat-desc">Money spent on this session</div>
+                        <div className="stat-desc">Money spent his session</div>
                     </div>
 
                     <div className="stat">
@@ -103,7 +103,7 @@ const GenerationMenuComponent: React.FC<GenerationMenuComponentProps> = ({ addGe
                         </div>
                         <div className="stat-title text-sm">Total Generation Time</div>
                         <div className="stat-value text-4xl">{Number(timeSpent.toFixed(2))}min</div>
-                        <div className="stat-desc">Time saved on this session (actual time {Number((timeSpent / 3).toFixed(2))}min)</div>
+                        <div className="stat-desc">Time saved this session (real estimation {Number((timeSpent / generationPodNumber).toFixed(2))}min)</div>
                     </div>
 
                 </div>
