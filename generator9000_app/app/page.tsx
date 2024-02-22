@@ -25,6 +25,18 @@ export default function Home() {
   const [generations, setGenerations] = useState(0)
   const [timeSpent, setTimeSpent] = useState(0)
 
+  const addGenerations = (add_generations: number) => {
+    setGenerations(prevGenerations => prevGenerations + add_generations);
+  }
+
+  const addCosts = (add_costs: number) => {
+    setCost(prevCost => prevCost + add_costs);
+  }
+
+  const addTimeSpent = (add_time: number) => {
+    setTimeSpent(prevTimeSpent => prevTimeSpent + add_time);
+  }
+
 
   const saveGeneratedObjects = (generatedObjects: GeneratedObject) => {
     setGeneratedObjects(prevList => [...prevList, generatedObjects]);
@@ -73,7 +85,7 @@ export default function Home() {
         </div>
         <div className='w-2/3'>
 
-          <GenerationMenuComponent prompt={prompt} imagePrompt={imagePrompt} generations={generations} cost={cost} timeSpent={timeSpent} setGenerations={setGenerations} setCost={setCost} setTimeSpent={setTimeSpent} mode={mode} dataFields={dataFields} generatedObjects={generatedObjects} saveGeneratedObjects={saveGeneratedObjects} handleDelete={handleDelete} />
+          <GenerationMenuComponent prompt={prompt} imagePrompt={imagePrompt} generations={generations} cost={cost} timeSpent={timeSpent} setGenerations={setGenerations} setCost={setCost} setTimeSpent={setTimeSpent} mode={mode} dataFields={dataFields} generatedObjects={generatedObjects} saveGeneratedObjects={saveGeneratedObjects} handleDelete={handleDelete} addCosts={addCosts} addGenerations={addGenerations} addTimeSpent={addTimeSpent} />
 
         </div>
       </div>

@@ -31,9 +31,12 @@ interface GenerationMenuComponentProps {
     setTimeSpent: (_n: number) => void;
     saveGeneratedObjects: (generatedObjects: GeneratedObject) => void;
     handleDelete: (index: number) => void;
+    addGenerations: (_n: number) => void;
+    addCosts: (_n: number) => void;
+    addTimeSpent: (_n: number) => void;
 }
 
-const GenerationMenuComponent: React.FC<GenerationMenuComponentProps> = ({ generations, cost, timeSpent, mode, imagePrompt, prompt, dataFields, generatedObjects, setGenerations, setCost, setTimeSpent, saveGeneratedObjects, handleDelete }) => {
+const GenerationMenuComponent: React.FC<GenerationMenuComponentProps> = ({ addGenerations, addCosts, addTimeSpent, generations, cost, timeSpent, mode, imagePrompt, prompt, dataFields, generatedObjects, saveGeneratedObjects, handleDelete }) => {
 
     const [imageSize, setImageSize] = useState("1024x1024");
     const [imageStyle, setImageStyle] = useState("vivid")
@@ -45,18 +48,6 @@ const GenerationMenuComponent: React.FC<GenerationMenuComponentProps> = ({ gener
 
     const [shouldGenerate, setShouldGenerate] = useState(false);
     const [shouldSave, setShouldSave] = useState(false);
-
-    const addGenerations = (add_generations: number) => {
-        setGenerations(generations + add_generations);
-    }
-
-    const addCosts = (add_costs: number) => {
-        setCost(cost + add_costs);
-    }
-
-    const addTimeSpent = (add_time: number) => {
-        setTimeSpent(timeSpent + add_time);
-    }
 
     const onGenerationComplete = () => {
         setShouldGenerate(false)

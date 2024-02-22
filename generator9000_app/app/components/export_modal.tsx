@@ -23,7 +23,7 @@ const ExportModalComponent: React.FC<ExportModalComponentProps> = ({ includeImag
         <dialog id="export_modal" className="modal">
 
             <div className="modal-box">
-                <h3 className="font-bold text-lg">Export Settings</h3>
+                <h3 className="font-bold text-lg">Save Settings</h3>
                 <div className="form-control">
                     <label className="label cursor-pointer">
                         <span className="label-text">Include ImageBase64?</span>

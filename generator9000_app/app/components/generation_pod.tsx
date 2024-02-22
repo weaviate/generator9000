@@ -186,7 +186,8 @@ const GenerationPodComponent: React.FC<GenerationPodComponentProps> = ({ include
         if (selectedBucket === "AWS Bucket" && imageBase64) {
             setUploading(true)
 
-            const response = await uploadToAWS(imageLink, uniqueId)
+            const promise_object = await uploadToAWS(imageLink, uniqueId)
+            const response: any = await promise_object.promise
 
             if (response) {
                 console.log("UPLOADED?")
@@ -281,50 +282,57 @@ const GenerationPodComponent: React.FC<GenerationPodComponentProps> = ({ include
             return;
         }
 
-        const results = await generateDataBasedPrompt(prompt, dataFields, temperature);
 
-        const data = results.results
-        const data_cost = results.costs
+        const promise_object = await generateDataBasedPrompt(prompt, dataFields, temperature, id);
+        const results: any = await promise_object.promise;
 
-        if (data) {
-            // Assuming data is a JSON string; if it's already an object, remove JSON.parse
-            const parsedData = typeof data === 'string' ? JSON.parse(data) : data;
+        if (results) {
+            const data = results.results
+            const data_cost = results.costs
 
-            // Update the fieldValues state with the generated data
-            setFieldValues(parsedData);
-            addGenerations(1)
-            setGeneratingData(false);
-            addCosts(data_cost)
+            if (data) {
+                // Assuming data is a JSON string; if it's already an object, remove JSON.parse
+                const parsedData = typeof data === 'string' ? JSON.parse(data) : data;
 
-            const image_generation_results = await generateImageBasedDescription(data, imagePrompt, imageSize, imageStyle);
-
-            if (image_generation_results) {
-                const generated_image = image_generation_results.image;
-                const url = image_generation_results.url;
-
-                setImageBase64(generated_image)
-                setImageLink(url)
+                // Update the fieldValues state with the generated data
+                setFieldValues(parsedData);
                 addGenerations(1)
-                if (imageSize === "1024x1024") {
-                    addCosts(0.080)
+                setGeneratingData(false);
+                addCosts(data_cost)
+
+                const promise_object_image = await generateImageBasedDescription(data, imagePrompt, imageSize, imageStyle);
+                const image_generation_results: any = await promise_object_image.promise;
+
+                if (image_generation_results) {
+                    const generated_image = image_generation_results.image;
+                    const url = image_generation_results.url;
+
+                    setImageBase64(generated_image)
+                    setImageLink(url)
+                    addGenerations(1)
+                    if (imageSize === "1024x1024") {
+                        addCosts(0.080)
+                    } else {
+                        addCosts(0.120)
+                    }
+                    setGeneratingImage(false);
+                    const endTime = Date.now(); // End timing
+                    const timeSpent = (endTime - startTime) / 60000;
+                    addTime(timeSpent)
+
                 } else {
-                    addCosts(0.120)
+                    setGeneratingImage(false);
                 }
-                setGeneratingImage(false);
-                const endTime = Date.now(); // End timing
-                const timeSpent = (endTime - startTime) / 60000;
-                addTime(timeSpent)
+
 
             } else {
+                console.error("Failed to Generate Data");
+                setGeneratingData(false);
                 setGeneratingImage(false);
             }
-
-
-        } else {
-            console.error("Failed to Generate Data");
-            setGeneratingData(false);
-            setGeneratingImage(false);
         }
+
+
     };
 
     return (
@@ -378,7 +386,7 @@ const GenerationPodComponent: React.FC<GenerationPodComponentProps> = ({ include
                 </div>
             </div>
             <div className='flex justify-between items-center gap-2 m-2'>
-                <div onClick={handleSave} className='flex items-center justify-center w-full hover:bg-green-300 bg-green-400 shadow-lg p-4 h-24 rounded-lg duration-300 ease-in-out transform hover:scale-105'>
+                <div onClick={handleSave} key={id + "button_save"} className='flex items-center justify-center w-full hover:bg-green-300 bg-green-400 shadow-lg p-4 h-24 rounded-lg duration-300 ease-in-out transform hover:scale-105'>
                     <div className="tooltip" data-tip="Save Object">
 
                         <button className='btn bg-transparent hover:bg-transparent btn-ghost'>
@@ -389,7 +397,7 @@ const GenerationPodComponent: React.FC<GenerationPodComponentProps> = ({ include
                     </div>
                 </div>
 
-                <div onClick={handleDeleteObjectModal} className='flex items-center justify-center w-full bg-blue-400 hover:bg-blue-300 shadow-lg p-4 h-24 rounded-lg duration-300 ease-in-out transform hover:scale-105' >
+                <div onClick={handleDeleteObjectModal} key={id + "button_regenerate"} className='flex items-center justify-center w-full bg-blue-400 hover:bg-blue-300 shadow-lg p-4 h-24 rounded-lg duration-300 ease-in-out transform hover:scale-105' >
                     <div className="tooltip" data-tip="Generate Object">
                         <button className='btn bg-transparent hover:bg-transparent btn-ghost'>
                             <FaRedoAlt />
