@@ -190,7 +190,6 @@ const GenerationPodComponent: React.FC<GenerationPodComponentProps> = ({ include
             const response: any = await promise_object.promise
 
             if (response) {
-                console.log("UPLOADED?")
                 setUploading(false)
                 resetFieldValues();
                 setImageBase64(null);

@@ -29,7 +29,6 @@ export async function generateDataBasedPrompt(user_prompt: string, dataFields: D
 
     async function generateDataBasedPromptPromise(user_prompt: string, dataFields: DataField[], temperature: number, generationPod: string) {
         try {
-            console.log("CALLED BY " + generationPod)
             const fieldsDescription = dataFields.map(field => {
                 let fieldDesc = `${field.name} (${field.type})`;
                 if (field.values && field.values.length > 0) {
@@ -80,7 +79,6 @@ export async function generateImageBasedDescription(image_description: string, p
         const _prompt = prompt + " Based on this data and metainformation: " + image_description
 
         try {
-            console.log("Generating Image")
             const response = await openai.images.generate({
                 model: "dall-e-3",
                 prompt: _prompt,
@@ -107,7 +105,8 @@ export async function generateImageBasedDescription(image_description: string, p
             }
 
         } catch (error) {
-            return error
+            console.log("Error when generating image " + error)
+            return { "image": "", "url": "" }
         }
     }
 
@@ -154,7 +153,6 @@ export async function uploadToAWS(imageUrl: string, fileName: string) {
                 });
 
                 const result = await upload.done();
-                console.log("Upload success", result);
                 return result;
             } catch (error) {
                 console.error("Upload failed", error);

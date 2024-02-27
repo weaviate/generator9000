@@ -57,9 +57,6 @@ export default function Home() {
   const handleImportAllFromJSON = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const data = await importAllFromJson(event)
 
-    console.log("DATA INPUT")
-    console.log(data)
-
     setPrompt(data.prompt)
     setImagePrompt(data.imagePrompt)
     setDataFields(data.datafields)

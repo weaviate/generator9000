@@ -298,7 +298,7 @@ export const empty_template: Template = {
 
 export const clothing_template: Template = {
     name: "Clothing",
-    prompt: "Generate a fashion clothing item product in these categories: T-Shirts, Sweaters, Trousers, Jeans, Shorts, Skirts, Dresses, Formal. Only use 1 or 2 colors, write short and precise descriptions. Be creative with the naming and the descriptions.",
+    prompt: "Generate a fashion clothing item product in these categories: T-Shirts, Sweaters, Trousers, Jeans, Shorts, Skirts, Dresses, Formal. Only use 1 or 2 colors, write short and precise descriptions. Be creative with the naming and the descriptions. Don't use words like Lunar, Midnight, Twilight, Ocean, Seaside or similar. ",
     imagePrompt: "Create a highly detailed and realistic image of a single clothing item with only one color combination, presented as if for an e-commerce website. The item should be either laid flat or hanging against a pure white background, with no additional items, decorations, or visual elements present. The clothing should be fully visible, capturing its texture and colors accurately, offering a clear and straightforward view suitable for online shopping.",
     datafields: [{
         id: "name",
@@ -359,8 +359,8 @@ export const clothing_template: Template = {
 
 export const shoes_template: Template = {
     name: "Shoes",
-    prompt: "Generate a shoe fashion product. It can be: " + shoesSubCategories,
-    imagePrompt: "Create a highly detailed and realistic image of a single clothing item, presented as if for an e-commerce website. The item should be either laid flat or hanging against a pure white background, with no additional items, decorations, or visual elements present. The clothing should be fully visible, capturing its texture and colors accurately, offering a clear and straightforward view suitable for online shopping.",
+    prompt: "Generate a fashion shoe item product in these categories:" + shoesSubCategories + " . Only use 1 or 2 colors, write short and precise descriptions. Be creative with the naming and the descriptions. Don't use words like Lunar, Midnight, Twilight, Ocean, Seaside or similar. ",
+    imagePrompt: "Create a highly detailed and realistic image of a single shoe item, presented as if for an e-commerce website. The item should be either laid flat or hanging against a pure white background, with no additional items, decorations, or visual elements present. The shoe should be fully visible, capturing its texture and colors accurately, offering a clear and straightforward view suitable for online shopping.",
     datafields: [{
         id: "name",
         name: "name",
@@ -420,8 +420,8 @@ export const shoes_template: Template = {
 
 export const accessoires_template: Template = {
     name: "Accessories",
-    prompt: "Generate a accessories fashion product. Please use up to two colors only. Generate a short description that is not too marketing but rather short and precise",
-    imagePrompt: "Create a highly detailed and realistic image of a single accessories item with only one color combination, presented as if for an e-commerce website. The item should be either laid flat or hanging against a pure white background, with no additional items, decorations, or visual elements present. The clothing should be fully visible, capturing its texture and colors accurately, offering a clear and straightforward view suitable for online shopping.",
+    prompt: "Generate a Accessories item product in these categories:" + accessoriesSubCategories + " . Only use 1 or 2 colors, write short and precise descriptions. Be creative with the naming and the descriptions. Don't use words like Lunar, Midnight, Twilight, Ocean, Seaside or similar. ",
+    imagePrompt: "Create a highly detailed and realistic image of a single accessories item with only one color combination, presented as if for an e-commerce website. The item should be either laid flat or hanging against a pure white background, with no additional items, decorations, or visual elements present. The item should be fully visible, capturing its texture and colors accurately, offering a clear and straightforward view suitable for online shopping.",
     datafields: [{
         id: "name",
         name: "name",
@@ -481,8 +481,8 @@ export const accessoires_template: Template = {
 
 export const outerwear_template: Template = {
     name: "Outerwear",
-    prompt: "Generate a Outerwear fashion product. Please use up to two colors only. Generate a short description that is not too marketing but rather short and precise. Be creative with the naming and dont use words like Lunar, Eclipse, Twilights, Moon",
-    imagePrompt: "Create a highly detailed and realistic image of a single accessories item with only one color combination, presented as if for an e-commerce website. The item should be either laid flat or hanging against a pure white background, with no additional items, decorations, or visual elements present. The clothing should be fully visible, capturing its texture and colors accurately, offering a clear and straightforward view suitable for online shopping.",
+    prompt: "Generate a Outerwear item product in these categories:" + outerwearSubCategories + " . Only use 1 or 2 colors, write short and precise descriptions. Be creative with the naming and the descriptions. Don't use words like Lunar, Midnight, Twilight, Ocean, Seaside or similar. ",
+    imagePrompt: "Create a highly detailed and realistic image of a single Outerwear item with only one color combination, presented as if for an e-commerce website. The item should be either laid flat or hanging against a pure white background, with no additional items, decorations, or visual elements present. The clothing should be fully visible, capturing its texture and colors accurately, offering a clear and straightforward view suitable for online shopping.",
     datafields: [{
         id: "name",
         name: "name",
@@ -540,11 +540,68 @@ export const outerwear_template: Template = {
     ]
 }
 
+
+export const kitchenware_template: Template = {
+    name: "Kitchenware",
+    prompt: "Generate a kitchenware product likes plates and dishes. Be creative with the naming and the descriptions.",
+    imagePrompt: "Create a highly detailed and realistic image of a single kitchenware item with one to two color combination, presented as if for an e-commerce website. The item should be either laid flat or hanging against a pure white background, with no additional items, decorations, or visual elements present. The clothing should be fully visible, capturing its texture and colors accurately, offering a clear and straightforward view suitable for online shopping.",
+    datafields: [{
+        id: "name",
+        name: "name",
+        type: "string",
+        values: [],
+    },
+    {
+        id: "brand",
+        name: "brand",
+        type: "string",
+        values: []
+    },
+    {
+        id: "category",
+        name: "category",
+        type: "string",
+        values: [],
+    },
+    {
+        id: "price",
+        name: "price",
+        type: "number",
+        values: [],
+    },
+    {
+        id: "rating",
+        name: "rating",
+        type: "number",
+        values: ["1", "2", "3", "4", "5"],
+    },
+    {
+        id: "description",
+        name: "description",
+        type: "string",
+        values: [],
+    },
+    {
+        id: "material",
+        name: "material",
+        type: "string[]",
+        values: [],
+    },
+    {
+        id: "colors",
+        name: "colors",
+        type: "string[]",
+        values: colors,
+    }
+    ]
+}
+
+
 export interface GeneratedObject {
     [key: string]: string | null;
 }
 
-export const initial_templates: Template[] = [empty_template, outerwear_template, accessoires_template, fastfood_template, shoes_template, dating_template, cat_template, electronics_template, clothing_template]
+export const initial_templates: Template[] = [empty_template, kitchenware_template, outerwear_template, accessoires_template, fastfood_template, shoes_template, dating_template, cat_template, electronics_template, clothing_template]
 
 export interface importAllPayload {
     prompt: string,
