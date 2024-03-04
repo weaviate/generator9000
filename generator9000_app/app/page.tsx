@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 import NavbarComponent from './components/navbar';
 import PromptMenuComponent from './components/prompt_menu';
@@ -24,6 +24,24 @@ export default function Home() {
   const [cost, setCost] = useState(0)
   const [generations, setGenerations] = useState(0)
   const [timeSpent, setTimeSpent] = useState(0)
+
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      // Customize the message shown to the user
+      // Note: Modern browsers often display a standard message regardless of this value due to security reasons.
+      const message = 'Are you sure you want to leave? Any unsaved changes will be lost.';
+      e.returnValue = message; // Legacy method for cross browser support
+      return message; // Chrome requires returnValue to be set
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    // Cleanup the event listener on component unmount
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, []); // Empty dependency array means this effect runs only once after the initial render
+
 
   const addGenerations = (add_generations: number) => {
     setGenerations(prevGenerations => prevGenerations + add_generations);
