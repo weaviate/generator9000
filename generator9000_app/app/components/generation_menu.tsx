@@ -48,7 +48,7 @@ const GenerationMenuComponent: React.FC<GenerationMenuComponentProps> = ({ gener
     const [imageSize, setImageSize] = useState("1024x1024");
     const [imageStyle, setImageStyle] = useState("vivid")
     const [textTemperature, setTextTemperature] = useState(1)
-    const [generationPodNumber, setGenerationPodNumber] = useState(5);
+    const [generationPodNumber, setGenerationPodNumber] = useState(4);
 
     const [includeImageBase64, setIncludeImageBase64] = useState(true);
     const [selectedBucket, setSelectedBucket] = useState('No Bucket');
@@ -99,18 +99,18 @@ const GenerationMenuComponent: React.FC<GenerationMenuComponentProps> = ({ gener
                     <div className="stat">
                         <div className="stat-figure text-zinc-800">
                             <TbPigMoney size={30} />                </div>
-                        <div className="stat-title text-sm">Total Costs</div>
+                        <div className="stat-title text-sm">Estimated Cost</div>
                         <div className="stat-value text-4xl">{Number(cost.toFixed(2))}$</div>
-                        <div className="stat-desc">Money spent his session</div>
+                        <div className="stat-desc">Money wasted this session</div>
                     </div>
 
                     <div className="stat">
                         <div className="stat-figure text-zinc-800">
                             <MdAccessTime size={30} />
                         </div>
-                        <div className="stat-title text-sm">Total Generation Time</div>
+                        <div className="stat-title text-sm">Summed Generation Time</div>
                         <div className="stat-value text-4xl">{Number(timeSpent.toFixed(2))}min</div>
-                        <div className="stat-desc">Time saved this session (real estimation {Number((timeSpent / generationPodNumber).toFixed(2))}min)</div>
+                        <div className="stat-desc">Real time estimation ({Number((timeSpent / generationPodNumber).toFixed(2))}min)</div>
                     </div>
 
                 </div>

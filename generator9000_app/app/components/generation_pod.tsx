@@ -222,14 +222,6 @@ const GenerationPodComponent: React.FC<GenerationPodComponentProps> = ({ generat
 
         setGeneratingImage(true);
 
-        const fieldsDescription = dataFields.map(field => {
-            let fieldDesc = `${field.name} (${field.type})`;
-            if (field.values && field.values.length > 0) {
-                fieldDesc += ` with possible values: ${field.values.join(', ')}`;
-            }
-            return fieldDesc;
-        }).join('; ');
-
         if (imageSize != "1024x1024" && imageSize != "1792x1024" && imageSize != "1024x1792") {
             return;
         }
@@ -238,10 +230,11 @@ const GenerationPodComponent: React.FC<GenerationPodComponentProps> = ({ generat
             return;
         }
 
-
-        const image_generation_results = await generateImageBasedDescription(fieldsDescription, imagePrompt, imageSize, imageStyle, APISetKey);
+        const image_generation_promise = await generateImageBasedDescription(JSON.stringify(fieldValues), imagePrompt, imageSize, imageStyle, APISetKey);
+        const image_generation_results = await image_generation_promise.promise
 
         if (image_generation_results) {
+
 
             if (image_generation_results.error) {
                 console.error("Error: " + image_generation_results.error)
@@ -408,16 +401,22 @@ const GenerationPodComponent: React.FC<GenerationPodComponentProps> = ({ generat
                                 <div className='flex items-center justify-center gap-2'>
                                     <button disabled={uploading} onClick={handleDeleteImageModal} className="p-2 bg-red-400 shadow-lg rounded-lg text-sm font-bold mt-2 duration-300 ease-in-out transform hover:scale-105">Delete Image</button>
                                     <button disabled={uploading} onClick={regenerateImage} className="p-3 bg-blue-400 shadow-lg rounded-lg text-sm font-bold mt-2 duration-300 ease-in-out transform hover:scale-105"><FaRedoAlt /></button>
-
                                 </div>
                             </div>
                         )}
                         {!imageBase64 && !generatingImage && (
-                            <div>
-                                <button onClick={() => document.getElementById(imageInputId)?.click()} className="p-4 shadow-lg rounded-lg bg-zinc-100 text-xs font-semibold duration-300 ease-in-out transform hover:scale-105">Add Image</button>
-                                <input id={imageInputId} type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
+                            <div className='flex items-center justify-center gap-2'>
+                                <div className='flex justify-center items-center mt-1'>
+                                    <button onClick={() => document.getElementById(imageInputId)?.click()} className="p-3 shadow-lg rounded-lg bg-zinc-100 text-xs font-semibold duration-300 ease-in-out transform hover:scale-105">Add Image</button>
+                                    <input id={imageInputId} type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
+                                </div>
+                                <div className='flex justify-center items-center'>
+                                    {
+                                        !isPodEmpty() ? (<button disabled={uploading} onClick={regenerateImage} className="p-3 bg-blue-400 shadow-lg rounded-lg text-sm font-bold mt-2 duration-300 ease-in-out transform hover:scale-105"><FaRedoAlt /></button>
+                                        ) : (<div></div>)
+                                    }
+                                </div>
                             </div>
-
                         )}
                     </div>
                 </div>

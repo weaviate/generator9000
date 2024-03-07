@@ -113,7 +113,6 @@ const colors = [
     "Turquoise"
 ];
 
-
 export interface DataField {
     id: string; // Unique identifier for each data field
     name: string;
@@ -252,7 +251,7 @@ export const electronics_template: Template = {
 }
 
 export const fastfood_template: Template = {
-    name: "FastFood",
+    name: "Fast Food",
     prompt: "Generate a fastfood item for a restaurant menu.",
     imagePrompt: "Create a highly detailed and realistic image of a single food item, presented as if for an menu. The item should be placed on a white plate against a pure white background, with no additional items, decorations, or visual elements present. The food item should be fully visible, capturing its texture and colors accurately, offering a clear and straightforward view.",
     datafields: [{
@@ -290,7 +289,7 @@ export const fastfood_template: Template = {
 
 
 export const empty_template: Template = {
-    name: "Empty",
+    name: "Blank",
     imagePrompt: "",
     prompt: "",
     datafields: []
@@ -596,12 +595,55 @@ export const kitchenware_template: Template = {
     ]
 }
 
+export const book_template: Template = {
+    name: "Books",
+    prompt: "Generate a book",
+    imagePrompt: "Create a highly detailed and realistic image of a book with a blurred background, candles and in a library.",
+    datafields: [{
+        id: "title",
+        name: "title",
+        type: "string",
+        values: [],
+    },
+    {
+        id: "author",
+        name: "author",
+        type: "string",
+        values: []
+    },
+    {
+        id: "pages",
+        name: "pages",
+        type: "number",
+        values: [],
+    },
+    {
+        id: "abstract",
+        name: "abstract",
+        type: "string",
+        values: [],
+    },
+    {
+        id: "publisher",
+        name: "publisher",
+        type: "string",
+        values: [],
+    },
+    {
+        id: "genre",
+        name: "genre",
+        type: "string",
+        values: [],
+    }
+    ]
+}
+
 
 export interface GeneratedObject {
     [key: string]: string | null;
 }
 
-export const initial_templates: Template[] = [empty_template, kitchenware_template, outerwear_template, accessoires_template, fastfood_template, shoes_template, dating_template, cat_template, electronics_template, clothing_template]
+export const initial_templates: Template[] = [empty_template, book_template, kitchenware_template, outerwear_template, accessoires_template, fastfood_template, shoes_template, dating_template, cat_template, electronics_template, clothing_template]
 
 export interface importAllPayload {
     prompt: string,

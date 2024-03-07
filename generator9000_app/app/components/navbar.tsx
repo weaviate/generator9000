@@ -77,7 +77,7 @@ const NavbarComponent: React.FC<NavbarComponentProps> = ({ generatedObjects, mod
                     />
                 </div>
                 <div className='justify-center items-center'>
-                    <button className='p-2 shadow-lg rounded-full bg-green-200 hover:bg-green-300' onClick={handleClick}>
+                    <button className='p-2 shadow-lg rounded-full bg-white hover:bg-green-300' onClick={handleClick}>
                         <FaGithub />
                     </button>
                 </div>
