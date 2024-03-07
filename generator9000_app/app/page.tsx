@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 
+import { Suspense } from "react"
+
 import NavbarComponent from './components/navbar';
 import PromptMenuComponent from './components/prompt_menu';
 import GenerationMenuComponent from './components/generation_menu';
@@ -138,9 +140,9 @@ export default function Home() {
 
       <div className='flex justify-center mt-4'>
         <div className='w-1/3'>
-
-          <PromptMenuComponent setGenerateOptions={setGenerateOptions} prompt={prompt} imagePrompt={imagePrompt} setPrompt={setPrompt} setImagePrompt={setImagePrompt} templates={templates} setSelectedTemplate={setSelectedTemplate} selectedTemplate={selectedTemplate} dataFields={dataFields} setDataFields={setDataFields} />
-
+          <Suspense>
+            <PromptMenuComponent setGenerateOptions={setGenerateOptions} prompt={prompt} imagePrompt={imagePrompt} setPrompt={setPrompt} setImagePrompt={setImagePrompt} templates={templates} setSelectedTemplate={setSelectedTemplate} selectedTemplate={selectedTemplate} dataFields={dataFields} setDataFields={setDataFields} />
+          </Suspense>
         </div>
         <div className='w-2/3'>
 
