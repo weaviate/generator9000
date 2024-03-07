@@ -87,19 +87,19 @@ export const importAllFromJson = async (event: React.ChangeEvent<HTMLInputElemen
                             // Handle the object case
                             const newTemplate: Template = {
                                 name: "Current File",
-                                imagePrompt: importedData.imagePrompt,
-                                prompt: importedData.prompt,
-                                datafields: importedData.dataFields
+                                imagePrompt: importedData.imagePrompt ? importedData.imagePrompt : "",
+                                prompt: importedData.prompt ? importedData.prompt : "",
+                                datafields: importedData.dataFields ? importedData.dataFields : []
                             };
 
                             resolve({
-                                prompt: importedData.prompt,
-                                imagePrompt: importedData.imagePrompt,
-                                datafields: importedData.dataFields,
-                                generatedObjects: importedData.generatedObjects,
-                                cost: importedData.cost,
-                                generations: importedData.generations,
-                                timeSpent: importedData.timeSpent,
+                                prompt: importedData.prompt ? importedData.prompt : "",
+                                imagePrompt: importedData.imagePrompt ? importedData.imagePrompt : "",
+                                datafields: importedData.dataFields ? importedData.dataFields : [],
+                                generatedObjects: importedData.generatedObjects ? importedData.generatedObjects : [],
+                                cost: importedData.cost ? importedData.cost : 0,
+                                generations: importedData.generations ? importedData.generations : 0,
+                                timeSpent: importedData.timeSpent ? importedData.timeSpent : 0,
                                 template: newTemplate
                             });
                         }
