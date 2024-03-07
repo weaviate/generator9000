@@ -1,3 +1,5 @@
+'use client'
+
 import React, { useState } from 'react';
 
 import SettingsModalComponent from './settings_modal';
@@ -25,6 +27,11 @@ interface GenerationMenuComponentProps {
     prompt: string;
     dataFields: DataField[];
     generatedObjects: GeneratedObject[];
+    APIEnvKeyAvailable: boolean;
+    APISetKey: string;
+    generateData: boolean;
+    generateImage: boolean;
+
 
     setGenerations: (_n: number) => void;
     setCost: (_n: number) => void;
@@ -36,7 +43,7 @@ interface GenerationMenuComponentProps {
     addTimeSpent: (_n: number) => void;
 }
 
-const GenerationMenuComponent: React.FC<GenerationMenuComponentProps> = ({ addGenerations, addCosts, addTimeSpent, generations, cost, timeSpent, mode, imagePrompt, prompt, dataFields, generatedObjects, saveGeneratedObjects, handleDelete }) => {
+const GenerationMenuComponent: React.FC<GenerationMenuComponentProps> = ({ generateData, generateImage, addGenerations, addCosts, addTimeSpent, APIEnvKeyAvailable, APISetKey, generations, cost, timeSpent, mode, imagePrompt, prompt, dataFields, generatedObjects, saveGeneratedObjects, handleDelete }) => {
 
     const [imageSize, setImageSize] = useState("1024x1024");
     const [imageStyle, setImageStyle] = useState("vivid")
@@ -132,6 +139,10 @@ const GenerationMenuComponent: React.FC<GenerationMenuComponentProps> = ({ addGe
                                 onSaveComplete={onSaveComplete}
                                 includeImageBase64={includeImageBase64}
                                 selectedBucket={selectedBucket}
+                                APIEnvKeyAvailable={APIEnvKeyAvailable}
+                                APISetKey={APISetKey}
+                                generateData={generateData}
+                                generateImage={generateImage}
                             />
                         ))}
                     </div>

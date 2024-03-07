@@ -1,3 +1,6 @@
+'use client'
+
+
 import React, { useState } from 'react';
 import { GeneratedObject } from './types'
 import { TiDelete } from "react-icons/ti";
@@ -33,6 +36,11 @@ const InspectModeComponent: React.FC<InspectComponentProps> = ({ generatedObject
         setDeleteCandidateIndex(null);
     }
 
+    const truncateText = (text: string, maxLength = 100) => {
+        if (text.length <= maxLength) return text;
+        return `${text.substring(0, maxLength)}...`;
+    };
+
     return (
         <div className='grid grid-cols-3 gap-4 justify-center items-center'>
             {generatedObjects.map((fieldValues, index) => (
@@ -40,15 +48,15 @@ const InspectModeComponent: React.FC<InspectComponentProps> = ({ generatedObject
                     <div className="card-body">
                         <div className='flex justify-between gap-4 items-center'>
                             {fieldValues.id ? (
-                                <h2 className="card-title text-base">{fieldValues.id}</h2>
+                                <h2 className="card-title text-sm">{fieldValues.id}</h2>
                             ) : (
-                                <h2 className="card-title text-base">Object #{index + 1}</h2>
+                                <h2 className="card-title text-sm">Object #{index + 1}</h2>
                             )}
 
                             <button onClick={() => handleDeleteObjectModal(index)} className="p-2 bg-red-400 shadow-md rounded-xl duration-300 ease-in-out transform hover:scale-105 max-w-sm"><TiDelete /></button>
                         </div>
                         {fieldValues.imageBase64 ? (
-                            <img src={fieldValues.imageBase64} alt={`Uploaded Object ${index + 1}`} className="max-w-full h-auto" />
+                            <img src={fieldValues.imageBase64} alt={`Uploaded Object ${index + 1}`} className="max-w-full h-auto rounded-lg shadow-lg" />
                         ) : (
                             <p>No Image</p>
                         )}
@@ -57,7 +65,16 @@ const InspectModeComponent: React.FC<InspectComponentProps> = ({ generatedObject
                         ) : (
                             <p></p>
                         )}
-                        <pre className='text-xs'>{JSON.stringify({ ...fieldValues, imageBase64: undefined }, null, 2)}</pre>
+                        {Object.entries(fieldValues).map(([key, value]) => {
+                            if (key != 'imageBase64' && key != 'imageURL') {
+                                return (
+                                    <div key={key} className="p-2">
+                                        <h3 className="font-bold">{key}</h3>
+                                        <p>{typeof value === 'string' ? truncateText(value) : JSON.stringify(value, null, 2)}</p>
+                                    </div>
+                                );
+                            }
+                        })}
                     </div>
                 </div>
             ))}

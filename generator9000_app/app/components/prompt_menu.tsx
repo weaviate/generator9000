@@ -1,4 +1,7 @@
-import React, { useEffect } from 'react';
+'use client'
+
+
+import React, { useEffect, useState } from 'react';
 import DataFieldComponent from './datafield'
 import { Template, DataField } from './types'
 
@@ -19,12 +22,16 @@ interface PromptMenuComponentProps {
     setImagePrompt: (_prompt: string) => void;
     setSelectedTemplate: (_template: string) => void;
     setDataFields: (_datafields: DataField[]) => void;
+    setGenerateOptions: (data: boolean, image: boolean) => void;
 }
 
-const PromptMenuComponent: React.FC<PromptMenuComponentProps> = ({ prompt, imagePrompt, selectedTemplate, templates, dataFields, setPrompt, setImagePrompt, setDataFields, setSelectedTemplate }) => {
+const PromptMenuComponent: React.FC<PromptMenuComponentProps> = ({ prompt, imagePrompt, selectedTemplate, templates, dataFields, setPrompt, setImagePrompt, setDataFields, setSelectedTemplate, setGenerateOptions }) => {
 
     const router = useRouter();
     const searchParams = useSearchParams()
+
+    const [generateData, setGenerateData] = useState(true)
+    const [generateImage, setGenerateImage] = useState(true)
 
     useEffect(() => {
 
@@ -108,9 +115,21 @@ const PromptMenuComponent: React.FC<PromptMenuComponentProps> = ({ prompt, image
                 </div>
 
                 <p className='text-xs font-light mb-1'>Data Prompt</p>
-                <textarea className="textarea textarea-bordered w-full" placeholder="Enter your prompt here" value={prompt} onChange={(e) => setPrompt(e.target.value)}></textarea>
+                <textarea disabled={!generateData} className="textarea textarea-bordered w-full" placeholder="Enter your prompt here" value={prompt} onChange={(e) => setPrompt(e.target.value)}></textarea>
+                <div className="form-control">
+                    <label className="label cursor-pointer">
+                        <span className="label-text">Generate Data</span>
+                        <input type="checkbox" checked={generateData} onChange={(e) => { setGenerateData(e.target.checked); setGenerateOptions(e.target.checked, generateImage) }} className="checkbox" />
+                    </label>
+                </div>
                 <p className='text-xs font-light mb-1'>Image Prompt</p>
-                <textarea className="textarea textarea-bordered w-full" placeholder="Enter your image prompt here" value={imagePrompt} onChange={(e) => setImagePrompt(e.target.value)}></textarea>
+                <textarea disabled={!generateImage} className="textarea textarea-bordered w-full" placeholder="Enter your image prompt here" value={imagePrompt} onChange={(e) => setImagePrompt(e.target.value)}></textarea>
+                <div className="form-control">
+                    <label className="label cursor-pointer">
+                        <span className="label-text">Generate Image</span>
+                        <input type="checkbox" checked={generateImage} onChange={(e) => { setGenerateImage(e.target.checked); setGenerateOptions(generateData, e.target.checked) }} className="checkbox" />
+                    </label>
+                </div>
 
             </div>
             <div className='p-2'>

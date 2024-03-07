@@ -16,6 +16,9 @@ interface GenerationPodComponentProps {
     dataFields: DataField[];
     includeImageBase64: boolean;
     selectedBucket: string;
+    generateData: boolean;
+    generateImage: boolean;
+
     onSaveObject: (generatedObject: GeneratedObject) => void;
     imageSize: string;
     imageStyle: string;
@@ -23,6 +26,8 @@ interface GenerationPodComponentProps {
     shouldGenerate: boolean;
     onGenerationComplete: () => void;
     shouldSave: boolean;
+    APIEnvKeyAvailable: boolean;
+    APISetKey: string;
     onSaveComplete: () => void;
     addGenerations: (add_generations: number) => void;
     addCosts: (add_cost: number) => void;
@@ -30,7 +35,7 @@ interface GenerationPodComponentProps {
 
 }
 
-const GenerationPodComponent: React.FC<GenerationPodComponentProps> = ({ includeImageBase64, selectedBucket, prompt, imagePrompt, shouldGenerate, shouldSave, dataFields, onSaveObject, onSaveComplete, id, imageSize, imageStyle, temperature, addGenerations, addCosts, addTime, onGenerationComplete }) => {
+const GenerationPodComponent: React.FC<GenerationPodComponentProps> = ({ generateData, generateImage, APIEnvKeyAvailable, APISetKey, includeImageBase64, selectedBucket, prompt, imagePrompt, shouldGenerate, shouldSave, dataFields, onSaveObject, onSaveComplete, id, imageSize, imageStyle, temperature, addGenerations, addCosts, addTime, onGenerationComplete }) => {
 
     const [fieldValues, setFieldValues] = useState<{ [key: string]: string }>({});
     const [imageBase64, setImageBase64] = useState<string | null>(null);
@@ -211,7 +216,7 @@ const GenerationPodComponent: React.FC<GenerationPodComponentProps> = ({ include
 
         const startTime = Date.now();
 
-        if (generatingImage || generatingData) {
+        if (generatingImage || generatingData || (!APIEnvKeyAvailable && !APISetKey) || !generateImage) {
             return;
         }
 
@@ -234,9 +239,14 @@ const GenerationPodComponent: React.FC<GenerationPodComponentProps> = ({ include
         }
 
 
-        const image_generation_results = await generateImageBasedDescription(fieldsDescription, imagePrompt, imageSize, imageStyle);
+        const image_generation_results = await generateImageBasedDescription(fieldsDescription, imagePrompt, imageSize, imageStyle, APISetKey);
 
         if (image_generation_results) {
+
+            if (image_generation_results.error) {
+                console.error("Error: " + image_generation_results.error)
+            }
+
             const generated_image = image_generation_results.image;
             const url = image_generation_results.url;
 
@@ -266,12 +276,9 @@ const GenerationPodComponent: React.FC<GenerationPodComponentProps> = ({ include
 
         const startTime = Date.now();
 
-        if (generatingImage || generatingData || uploading) {
+        if (generatingImage || generatingData || uploading || (!APIEnvKeyAvailable && !APISetKey)) {
             return;
         }
-
-        setGeneratingImage(true);
-        setGeneratingData(true);
 
         if (imageSize != "1024x1024" && imageSize != "1792x1024" && imageSize != "1024x1792") {
             return;
@@ -281,55 +288,102 @@ const GenerationPodComponent: React.FC<GenerationPodComponentProps> = ({ include
             return;
         }
 
+        if (generateData) {
+            setGeneratingData(true);
+            const promise_object = await generateDataBasedPrompt(prompt, dataFields, temperature, id, APISetKey);
+            const results: any = await promise_object.promise;
 
-        const promise_object = await generateDataBasedPrompt(prompt, dataFields, temperature, id);
-        const results: any = await promise_object.promise;
+            if (results) {
 
-        if (results) {
-            const data = results.results
-            const data_cost = results.costs
-
-            if (data) {
-                // Assuming data is a JSON string; if it's already an object, remove JSON.parse
-                const parsedData = typeof data === 'string' ? JSON.parse(data) : data;
-
-                // Update the fieldValues state with the generated data
-                setFieldValues(parsedData);
-                addGenerations(1)
-                setGeneratingData(false);
-                addCosts(data_cost)
-
-                const promise_object_image = await generateImageBasedDescription(data, imagePrompt, imageSize, imageStyle);
-                const image_generation_results: any = await promise_object_image.promise;
-
-                if (image_generation_results) {
-                    const generated_image = image_generation_results.image;
-                    const url = image_generation_results.url;
-
-                    setImageBase64(generated_image)
-                    setImageLink(url)
-                    addGenerations(1)
-                    if (imageSize === "1024x1024") {
-                        addCosts(0.080)
-                    } else {
-                        addCosts(0.120)
-                    }
-                    setGeneratingImage(false);
-                    const endTime = Date.now(); // End timing
-                    const timeSpent = (endTime - startTime) / 60000;
-                    addTime(timeSpent)
-
-                } else {
-                    setGeneratingImage(false);
+                if (results.error) {
+                    console.error("Error: " + results.error)
                 }
 
+                const data = results.results
+                const data_cost = results.costs
+
+                if (data) {
+
+                    // Assuming data is a JSON string; if it's already an object, remove JSON.parse
+                    const parsedData = typeof data === 'string' ? JSON.parse(data) : data;
+
+                    // Update the fieldValues state with the generated data
+                    setFieldValues(parsedData);
+                    addGenerations(1)
+                    setGeneratingData(false);
+                    addCosts(data_cost)
+
+                    if (generateImage) {
+                        setGeneratingImage(true);
+                        const promise_object_image = await generateImageBasedDescription(data, imagePrompt, imageSize, imageStyle, APISetKey);
+                        const image_generation_results: any = await promise_object_image.promise;
+
+                        if (image_generation_results) {
+
+                            if (image_generation_results.error) {
+                                console.error("Error: " + image_generation_results.error)
+                            }
+
+                            const generated_image = image_generation_results.image;
+                            const url = image_generation_results.url;
+
+                            setImageBase64(generated_image)
+                            setImageLink(url)
+                            addGenerations(1)
+                            if (imageSize === "1024x1024") {
+                                addCosts(0.080)
+                            } else {
+                                addCosts(0.120)
+                            }
+                            setGeneratingImage(false);
+                            const endTime = Date.now(); // End timing
+                            const timeSpent = (endTime - startTime) / 60000;
+                            addTime(timeSpent)
+
+                        } else {
+                            setGeneratingImage(false);
+                        }
+                    }
+
+                } else {
+                    console.error("Failed to Generate Data");
+                    setGeneratingData(false);
+                    setGeneratingImage(false);
+                }
+            }
+        } else if (generateImage) {
+            setGeneratingImage(true);
+            const promise_object_image = await generateImageBasedDescription("", imagePrompt, imageSize, imageStyle, APISetKey);
+            const image_generation_results: any = await promise_object_image.promise;
+
+            if (image_generation_results) {
+
+                if (image_generation_results.error) {
+                    console.error("Error: " + image_generation_results.error)
+                }
+
+                const generated_image = image_generation_results.image;
+                const url = image_generation_results.url;
+
+                setImageBase64(generated_image)
+                setImageLink(url)
+                addGenerations(1)
+                if (imageSize === "1024x1024") {
+                    addCosts(0.080)
+                } else {
+                    addCosts(0.120)
+                }
+                setGeneratingImage(false);
+                const endTime = Date.now(); // End timing
+                const timeSpent = (endTime - startTime) / 60000;
+                addTime(timeSpent)
 
             } else {
-                console.error("Failed to Generate Data");
-                setGeneratingData(false);
                 setGeneratingImage(false);
             }
         }
+
+
 
 
     };

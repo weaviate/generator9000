@@ -1,3 +1,6 @@
+'use client'
+
+
 import React from 'react';
 
 
@@ -34,7 +37,7 @@ const ExportModalComponent: React.FC<ExportModalComponentProps> = ({ includeImag
                     <label className="label">
                         <span className="label-text">Select Bucket:</span>
                     </label>
-                    <select value={selectedBucket} onChange={handleDropdownChange} className="select select-primary w-full max-w-xs">
+                    <select disabled={true} value={selectedBucket} onChange={handleDropdownChange} className="select select-primary w-full max-w-xs">
                         <option>No Bucket</option>
                         <option>AWS Bucket</option>
                     </select>
