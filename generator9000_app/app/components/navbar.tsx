@@ -5,6 +5,7 @@ import React from 'react';
 import { GeneratedObject } from './types'
 import RiveComponent from '@rive-app/react-canvas';
 import { FaKey } from "react-icons/fa";
+import { FaGithub } from "react-icons/fa";
 
 interface NavbarComponentProps {
     importAllFromJson: (event: React.ChangeEvent<HTMLInputElement>) => void;
@@ -53,6 +54,11 @@ const NavbarComponent: React.FC<NavbarComponentProps> = ({ generatedObjects, mod
         }
     }
 
+    const handleClick = () => {
+        // Open a new tab with the specified URL
+        window.open("https://github.com/weaviate/generator9000", '_blank', 'noopener,noreferrer');
+    };
+
     return (
         <div className="navbar bg-base-100 shadow-lg rounded-lg">
             <div className="flex-none gap-2 ml-4">
@@ -69,6 +75,11 @@ const NavbarComponent: React.FC<NavbarComponentProps> = ({ generatedObjects, mod
                         className="rive-container"
                         stateMachines={"State Machine 1"}
                     />
+                </div>
+                <div className='justify-center items-center'>
+                    <button className='p-2 shadow-lg rounded-full bg-green-200 hover:bg-green-300' onClick={handleClick}>
+                        <FaGithub />
+                    </button>
                 </div>
             </div>
 
