@@ -24,7 +24,7 @@ const NavbarComponent: React.FC<NavbarComponentProps> = ({ generatedObjects, mod
 
     useEffect(() => {
         // This ensures Audio is defined and used only on the client side
-        soundRef.current = new Audio("/path/to/maxwell.wav"); // Adjust the path as necessary
+        soundRef.current = new Audio("maxwell.wav"); // Adjust the path as necessary
     }, []);
 
     const playSound = () => {
