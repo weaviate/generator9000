@@ -287,6 +287,55 @@ export const fastfood_template: Template = {
     ]
 }
 
+export const foodingredients_template: Template = {
+    name: "Food Ingredients",
+    prompt: "Generate a food ingredient item for an ecommerce site.",
+    imagePrompt: "Create a highly detailed and realistic image of a single food item, presented as if for an e-commerce site. The item should be placed on a white plate against a pure white background, with no additional items, decorations, or visual elements present. The item should be fully visible, capturing its texture and colors accurately, offering a clear and straightforward view.",
+    datafields: [{
+        id: "name",
+        name: "name",
+        type: "string",
+        values: [],
+    },
+    {
+        id: "price",
+        name: "price",
+        type: "number",
+        values: [],
+    },
+    {
+        id: "nutrients",
+        name: "nutrients",
+        type: "string[]",
+        values: [],
+    },
+    {
+        id: "origin",
+        name: "origin",
+        type: "string",
+        values: [],
+    },
+    {
+        id: "food_type",
+        name: "food_type",
+        type: "string[]",
+        values: [],
+    },
+    {
+        id: "calories",
+        name: "calories",
+        type: "number",
+        values: [],
+    },
+    {
+        id: "description",
+        name: "description",
+        type: "string",
+        values: [],
+    }
+    ]
+}
+
 
 export const empty_template: Template = {
     name: "Blank",
@@ -643,7 +692,7 @@ export interface GeneratedObject {
     [key: string]: string | null;
 }
 
-export const initial_templates: Template[] = [empty_template, book_template, kitchenware_template, outerwear_template, accessoires_template, fastfood_template, shoes_template, dating_template, cat_template, electronics_template, clothing_template]
+export const initial_templates: Template[] = [empty_template, foodingredients_template, book_template, kitchenware_template, outerwear_template, accessoires_template, fastfood_template, shoes_template, dating_template, cat_template, electronics_template, clothing_template]
 
 export interface importAllPayload {
     prompt: string,
