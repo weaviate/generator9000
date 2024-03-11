@@ -1,7 +1,7 @@
 'use client'
 
 
-import React from 'react';
+import React, { useRef } from 'react';
 import { GeneratedObject } from './types'
 import RiveComponent from '@rive-app/react-canvas';
 import { FaKey } from "react-icons/fa";
@@ -20,6 +20,17 @@ interface NavbarComponentProps {
 
 const NavbarComponent: React.FC<NavbarComponentProps> = ({ generatedObjects, mode, apiKeyAvailable, importAllFromJson, exportAllToJson, setMode, handleExportJSON }) => {
 
+
+    const soundRef = useRef(new Audio("maxwell.wav"));
+
+    const playSound = () => {
+        soundRef.current.play();
+    };
+
+    const stopSound = () => {
+        soundRef.current.pause();
+        soundRef.current.currentTime = 0; // Rewind to the start
+    };
 
     const openSettingsModal = () => {
         const modal = document.getElementById('settings_modal');
@@ -60,7 +71,7 @@ const NavbarComponent: React.FC<NavbarComponentProps> = ({ generatedObjects, mod
     };
 
     return (
-        <div className="navbar bg-base-100 shadow-lg rounded-lg">
+        <div className="navbar bg-base-100 border-gray border-b">
             <div className="flex-none gap-2 ml-4">
                 <div className="avatar">
                     <div className="w-14 rounded-full shadow-lg">
@@ -74,6 +85,8 @@ const NavbarComponent: React.FC<NavbarComponentProps> = ({ generatedObjects, mod
                         src="generator_9000.riv"
                         className="rive-container"
                         stateMachines={"State Machine 1"}
+                        onMouseEnter={playSound}
+                        onMouseLeave={stopSound}
                     />
                 </div>
             </div>
@@ -111,7 +124,7 @@ const NavbarComponent: React.FC<NavbarComponentProps> = ({ generatedObjects, mod
 
                 <div className="hidden sm:block h-10 bg-gray-400 opacity-50 w-px"></div>
 
-                <button disabled={!apiKeyAvailable} className=" bg-cyan-400 p-4 text-xs rounded-lg shadow-lg font-bold duration-300 ease-in-out transform hover:scale-105" onClick={() => setMode(mode === "Generation" ? "Inspect" : "Generation")}>
+                <button disabled={!apiKeyAvailable} className=" bg-pink-300 p-4 text-xs rounded-lg shadow-lg font-bold duration-300 ease-in-out transform hover:scale-105" onClick={() => setMode(mode === "Generation" ? "Inspect" : "Generation")}>
                     {mode === "Generation" ? "Inspect Objects (" + generatedObjects.length + ")" : "Generate Objects"}
                 </button>
 

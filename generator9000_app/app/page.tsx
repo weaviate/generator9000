@@ -198,7 +198,7 @@ export default function Home() {
             <form method="dialog">
               {/* if there is a button in form, it will close the modal */}
               <button type='button' onClick={handleAPIKeySet} className="btn bg-green-400 hover:bg-green-300 mr-3">Set Key</button>
-              <button type='button' onClick={clearAPIKey} className="btn bg-orange-400 hover:bg-orange-300 mr-3">Clear Key</button>
+              <button type='button' onClick={clearAPIKey} className="btn bg-pink-300 hover:bg-pink-200 mr-3">Clear Key</button>
               <button className="btn">Close</button>
             </form>
           </div>
