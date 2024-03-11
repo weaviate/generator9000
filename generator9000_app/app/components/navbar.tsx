@@ -1,7 +1,7 @@
 'use client'
 
 
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { GeneratedObject } from './types'
 import RiveComponent from '@rive-app/react-canvas';
 import { FaKey } from "react-icons/fa";
@@ -20,16 +20,24 @@ interface NavbarComponentProps {
 
 const NavbarComponent: React.FC<NavbarComponentProps> = ({ generatedObjects, mode, apiKeyAvailable, importAllFromJson, exportAllToJson, setMode, handleExportJSON }) => {
 
+    const soundRef = useRef<HTMLAudioElement | null>(null);
 
-    const soundRef = useRef(new Audio("maxwell.wav"));
+    useEffect(() => {
+        // This ensures Audio is defined and used only on the client side
+        soundRef.current = new Audio("/path/to/maxwell.wav"); // Adjust the path as necessary
+    }, []);
 
     const playSound = () => {
-        soundRef.current.play();
+        if (soundRef.current) {
+            soundRef.current.play();
+        }
     };
 
     const stopSound = () => {
-        soundRef.current.pause();
-        soundRef.current.currentTime = 0; // Rewind to the start
+        if (soundRef.current) {
+            soundRef.current.pause();
+            soundRef.current.currentTime = 0; // Rewind to the start
+        }
     };
 
     const openSettingsModal = () => {
