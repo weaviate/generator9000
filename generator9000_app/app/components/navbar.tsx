@@ -76,34 +76,52 @@ const NavbarComponent: React.FC<NavbarComponentProps> = ({ generatedObjects, mod
                         stateMachines={"State Machine 1"}
                     />
                 </div>
-                <div className='justify-center items-center'>
-                    <button className='p-2 shadow-lg rounded-full bg-white hover:bg-green-300' onClick={handleClick}>
-                        <FaGithub />
-                    </button>
-                </div>
             </div>
 
-            <div className='flex-none justify-center items-center mr-5 gap-3'>
+            <div className='flex-none justify-center items-center gap-3'>
                 {apiKeyAvailable ? (<p className='text-xs opacity-25'>OpenAI Key available</p>) : (<p className='text-xs text-red-400 font-bold'>OpenAI Key not available!</p>)}
                 <button onClick={openKeyModal} className={`btn btn-circle border-2 ${apiKeyAvailable ? " border-green-400" : "border-dashed border-red-400"}`}>
                     <FaKey />
                 </button>
             </div>
 
+            <div className="hidden sm:block h-10 bg-gray-400 opacity-50 w-px mx-4"></div>
+
             <div className='flex-none gap-4'>
-                <input type="file" className="text-xs file-input file-input-md file-input-bordered" onChange={importAllFromJson} />
+                <div className='flex justify-center items-center'>
+                    <button onClick={() => document.getElementById("FileInputButton")?.click()} className="bg-green-400 p-4 text-xs rounded-lg shadow-lg font-bold duration-300 ease-in-out transform hover:scale-105">Import JSON</button>
+                    <input id="FileInputButton" type="file" className="hidden" onChange={importAllFromJson} />
+
+                </div>
                 <div className="dropdown dropdown-bottom dropdown-end">
-                    <button tabIndex={0} role="button" className=" bg-green-400 p-4 text-xs rounded-lg shadow-lg font-bold duration-300 ease-in-out transform hover:scale-105">Export</button>
+                    <button tabIndex={0} role="button" className=" bg-blue-400 p-4 text-xs rounded-lg shadow-lg font-bold duration-300 ease-in-out transform hover:scale-105">Export</button>
                     <ul tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
                         <li onClick={handleExportJSON}><a>Export Data</a></li>
                         <li onClick={exportAllToJson}><a>Export Template & Data</a></li>
                     </ul>
                 </div>
-                <button disabled={!apiKeyAvailable} className=" bg-blue-400 p-4 text-xs rounded-lg shadow-lg font-bold duration-300 ease-in-out transform hover:scale-105" onClick={() => setMode(mode === "Generation" ? "Inspect" : "Generation")}>
+
+                <div className="dropdown dropdown-bottom dropdown-end">
+                    <button tabIndex={0} role="button" className=" bg-gray-300 p-4 text-xs rounded-lg shadow-lg font-bold duration-300 ease-in-out transform hover:scale-105">Settings</button>
+                    <ul tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
+                        <li onClick={() => { openExportModal() }}><a>Save Settings</a></li>
+                        <li onClick={() => { openSettingsModal() }}><a>Generation Settings</a></li>
+                    </ul>
+                </div>
+
+                <div className="hidden sm:block h-10 bg-gray-400 opacity-50 w-px"></div>
+
+                <button disabled={!apiKeyAvailable} className=" bg-cyan-400 p-4 text-xs rounded-lg shadow-lg font-bold duration-300 ease-in-out transform hover:scale-105" onClick={() => setMode(mode === "Generation" ? "Inspect" : "Generation")}>
                     {mode === "Generation" ? "Inspect Objects (" + generatedObjects.length + ")" : "Generate Objects"}
                 </button>
-                <button className=" bg-gray-300 p-4 text-xs rounded-lg shadow-lg font-bold duration-300 ease-in-out transform hover:scale-105" onClick={() => { openExportModal() }}>Save Settings</button>
-                <button className=" bg-gray-300 p-4 text-xs rounded-lg shadow-lg font-bold duration-300 ease-in-out transform hover:scale-105" onClick={() => { openSettingsModal() }}>Generation Settings</button>
+
+                <div className="hidden sm:block h-10 bg-gray-400 opacity-50 w-px"></div>
+
+                <div className='justify-center items-center'>
+                    <button className='p-3 shadow-lg rounded-full bg-gray-50 hover:bg-green-300' onClick={handleClick}>
+                        <FaGithub />
+                    </button>
+                </div>
 
             </div>
 

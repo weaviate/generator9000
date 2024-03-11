@@ -383,7 +383,7 @@ const GenerationPodComponent: React.FC<GenerationPodComponentProps> = ({ generat
 
     return (
         <div className=''>
-            <div className='shadow-xl rounded-lg p-4 justify-center items-center'>
+            <div className='shadow-xl rounded-lg p-4 justify-center items-center border-gray border'>
                 <div className='bg-transparent h-full rounded-xl p-4'>
                     <div className='flex justify-center items-center'>
                         {generatingImage && (
@@ -437,7 +437,7 @@ const GenerationPodComponent: React.FC<GenerationPodComponentProps> = ({ generat
                     ))}
                 </div>
             </div>
-            <div className='flex justify-between items-center gap-2 m-2'>
+            <div className='flex justify-between items-center gap-4 mt-4'>
                 <div onClick={handleSave} key={id + "button_save"} className='flex items-center justify-center w-full hover:bg-green-300 bg-green-400 shadow-lg p-4 h-24 rounded-lg duration-300 ease-in-out transform hover:scale-105'>
                     <div className="tooltip" data-tip="Save Object">
 
@@ -460,14 +460,14 @@ const GenerationPodComponent: React.FC<GenerationPodComponentProps> = ({ generat
 
             </div>
             <div className={`${showAlert ? 'opacity-100' : 'opacity-0'} transition-opacity duration-1000`} role="alert" >
-                <div className="flex gap-2 bg-green-400 shadow-md p-4 mx-4 rounded-lg text-xs items-center ">
+                <div className="flex gap-2 bg-green-400 shadow-md p-4 mx-4 mt-4 rounded-lg text-xs items-center ">
                     <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                     <span>Saved Object!</span>
                 </div>
             </div>
 
             <div className={`${showEmptyAlert ? 'opacity-100' : 'opacity-0'} transition-opacity duration-1000`} role="alert" >
-                <div className="flex gap-2 bg-red-400 shadow-md p-4 mx-4 rounded-lg text-xs items-center ">
+                <div className="flex gap-2 bg-red-400 shadow-md p-4 mx-4 mt-2 rounded-lg text-xs items-center ">
                     <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                     <span>I refuse to save empty objects!</span>
                 </div>

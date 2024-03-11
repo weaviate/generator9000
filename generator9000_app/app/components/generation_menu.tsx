@@ -67,9 +67,9 @@ const GenerationMenuComponent: React.FC<GenerationMenuComponentProps> = ({ gener
 
     return (
         <div>
-            <div className=' flex justify-end items-center mb-2 gap-5'>
+            <div className=' flex justify-start items-center mb-2 gap-4 ml-4'>
 
-                <div onClick={() => { setShouldSave(true) }} className='flex items-center justify-center bg-emerald-400 hover:bg-emerald-300 shadow-lg p-4 h-24 w-24 rounded-lg duration-300 ease-in-out transform hover:scale-105' >
+                <div onClick={() => { setShouldSave(true) }} className='flex items-center justify-center bg-green-500 hover:bg-green-400 shadow-lg p-4 h-24 w-24 rounded-lg duration-300 ease-in-out transform hover:scale-105' >
                     <div className="tooltip" data-tip="Save All">
                         <button className='btn bg-transparent hover:bg-transparent btn-ghost'>
                             <ImCheckmark />
@@ -77,7 +77,7 @@ const GenerationMenuComponent: React.FC<GenerationMenuComponentProps> = ({ gener
                     </div>
                 </div>
 
-                <div onClick={() => { setShouldGenerate(true) }} className='flex items-center justify-center bg-cyan-400 hover:bg-cyan-300 shadow-lg p-4 h-24 w-24 rounded-lg duration-300 ease-in-out transform hover:scale-105' >
+                <div onClick={() => { setShouldGenerate(true) }} className='flex items-center justify-center bg-blue-500 hover:bg-blue-400 shadow-lg p-4 h-24 w-24 rounded-lg duration-300 ease-in-out transform hover:scale-105' >
                     <div className="tooltip" data-tip="Generate All">
                         <button className='btn bg-transparent hover:bg-transparent btn-ghost'>
                             <FaRedoAlt />
@@ -89,27 +89,27 @@ const GenerationMenuComponent: React.FC<GenerationMenuComponentProps> = ({ gener
 
                     <div className="stat">
                         <div className="stat-figure text-zinc-800">
-                            <BiObjectsVerticalBottom size={30} />
+                            <BiObjectsVerticalBottom size={25} />
                         </div>
                         <div className="stat-title text-sm">Total Generations</div>
-                        <div className="stat-value text-4xl">{generations}x</div>
+                        <div className="stat-value text-3xl">{generations}x</div>
                         <div className="stat-desc">Generations this session</div>
                     </div>
 
                     <div className="stat">
                         <div className="stat-figure text-zinc-800">
-                            <TbPigMoney size={30} />                </div>
+                            <TbPigMoney size={25} />                </div>
                         <div className="stat-title text-sm">Estimated Cost</div>
-                        <div className="stat-value text-4xl">{Number(cost.toFixed(2))}$</div>
+                        <div className="stat-value text-3xl">{Number(cost.toFixed(2))}$</div>
                         <div className="stat-desc">Money wasted this session</div>
                     </div>
 
                     <div className="stat">
                         <div className="stat-figure text-zinc-800">
-                            <MdAccessTime size={30} />
+                            <MdAccessTime size={25} />
                         </div>
                         <div className="stat-title text-sm">Summed Generation Time</div>
-                        <div className="stat-value text-4xl">{Number(timeSpent.toFixed(2))}min</div>
+                        <div className="stat-value text-3xl">{Number(timeSpent.toFixed(2))}min</div>
                         <div className="stat-desc">Real time estimation ({Number((timeSpent / generationPodNumber).toFixed(2))}min)</div>
                     </div>
 

@@ -133,6 +133,12 @@ export default function Home() {
     }
   }
 
+  const clearAPIKey = () => {
+    setSelectedAPIKey("")
+    setAPIKey("")
+    localStorage.removeItem('Generator9000_APIKEY')
+  }
+
   return (
     <main className="p-8">
 
@@ -178,7 +184,7 @@ export default function Home() {
           <p className="py-4 text-xs">You can set your OpenAI API Key here:</p>
           <label className="cursor-pointer label">
             <span className="label-text">Remember key in browser</span>
-            <input type="checkbox" className="checkbox checkbox-accent" checked={saveInBrowser} onChange={(e) => { setSaveInBrowser(e.target.checked) }} />
+            <input type="checkbox" className="checkbox checkbox-sm" checked={saveInBrowser} onChange={(e) => { setSaveInBrowser(e.target.checked) }} />
           </label>
           <label className="input input-bordered flex items-center gap-2">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-4 h-4 opacity-70"><path fillRule="evenodd" d="M14 6a4 4 0 0 1-4.899 3.899l-1.955 1.955a.5.5 0 0 1-.353.146H5v1.5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1-.5-.5v-2.293a.5.5 0 0 1 .146-.353l3.955-3.955A4 4 0 1 1 14 6Zm-4-2a.75.75 0 0 0 0 1.5.5.5 0 0 1 .5.5.75.75 0 0 0 1.5 0 2 2 0 0 0-2-2Z" clipRule="evenodd" /></svg>
@@ -191,7 +197,8 @@ export default function Home() {
           <div className="modal-action">
             <form method="dialog">
               {/* if there is a button in form, it will close the modal */}
-              <button type='button' onClick={handleAPIKeySet} className="btn btn-accent mr-3">Set Key</button>
+              <button type='button' onClick={handleAPIKeySet} className="btn bg-green-400 hover:bg-green-300 mr-3">Set Key</button>
+              <button type='button' onClick={clearAPIKey} className="btn bg-orange-400 hover:bg-orange-300 mr-3">Clear Key</button>
               <button className="btn">Close</button>
             </form>
           </div>
