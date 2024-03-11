@@ -2,6 +2,7 @@
 
 ## Added
 - Clear API Key
+- Easter Egg
 
 ## Fixed
 
