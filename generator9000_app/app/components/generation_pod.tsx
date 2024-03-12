@@ -289,8 +289,6 @@ const GenerationPodComponent: React.FC<GenerationPodComponentProps> = ({ generat
                 id: dataField.name || dataField.id, // Replace 'id' with 'name' only if 'name' is not empty
             }));
 
-            console.log(updatedDataFields)
-
             const promise_object = await generateDataBasedPrompt(prompt, updatedDataFields, temperature, id, APISetKey);
             const results: any = await promise_object.promise;
 
@@ -304,8 +302,6 @@ const GenerationPodComponent: React.FC<GenerationPodComponentProps> = ({ generat
                 const data_cost = results.costs
 
                 if (data) {
-
-                    console.log(data)
 
                     // Assuming data is a JSON string; if it's already an object, remove JSON.parse
                     const parsedData = typeof data === 'string' ? JSON.parse(data) : data;
