@@ -8,6 +8,7 @@ import NavbarComponent from './components/navbar';
 import PromptMenuComponent from './components/prompt_menu';
 import GenerationMenuComponent from './components/generation_menu';
 import { IoMdAlert } from "react-icons/io";
+import { HiMiniQuestionMarkCircle } from "react-icons/hi2";
 
 import { get_API_Status } from './actions'
 
@@ -199,6 +200,59 @@ export default function Home() {
               {/* if there is a button in form, it will close the modal */}
               <button type='button' onClick={handleAPIKeySet} className="btn bg-green-400 hover:bg-green-300 mr-3">Set Key</button>
               <button type='button' onClick={clearAPIKey} className="btn bg-pink-300 hover:bg-pink-200 mr-3">Clear Key</button>
+              <button className="btn">Close</button>
+            </form>
+          </div>
+        </div>
+      </dialog>
+
+      <dialog id="weaviate_modal" className="modal">
+        <div className="modal-box">
+          <div className='flex items-center justify-start gap-2'>
+            <h3 className="font-bold text-lg">Setup Weaviate</h3>
+          </div>
+
+          <details className="collapse collapse-arrow mt-5 bg-gray-100 shadow-lg items-center">
+            <summary className="collapse-title items-center">How to setup Weaviate?</summary>
+            <div className="collapse-content">
+              <p className='text-sm font-light'>Connect to Weaviate to automatically ingest generated objects.</p>
+              <p className='text-sm font-light mt-2'>Weaviate is an AI-native vector database used for many AI applications. You can easily create a free cluster on Weaviate Cloud Services (WCS) to try it out.</p>
+              <p className='text-sm font-light mt-2'>https://console.weaviate.cloud/dashboard</p>
+            </div>
+          </details>
+
+          <h1 className="text-base mt-5">Enter your credentials</h1>
+          <label className="input input-bordered flex items-center gap-2 mt-2">
+            <p className='text-xs'>Weaviate URL</p>
+            <input type="password" className="grow" value={"meow"} />
+          </label>
+          <label className="input input-bordered flex items-center gap-2 mt-2">
+            <p className='text-xs'>Weaviate Key</p>
+            <input type="password" className="grow" value={"meow"} />
+          </label>
+
+          <label className="form-control w-full mt-2">
+            <div className="label">
+              <span className="label-text">Select a collection</span>
+            </div>
+            <select disabled className="select select-bordered">
+              <option>Documents</option>
+              <option>Objects</option>
+              <option>Types</option>
+            </select>
+          </label>
+
+          <div className='flex items-center justify-end gap-3 mt-2'>
+            <p className="text-xs text-light">Remember credentials in browser</p>
+            <input type="checkbox" className="checkbox checkbox-sm" />
+          </div>
+          <div className='flex gap-5 justify-end items-center mt-2'>
+            <button type='button' className="btn bg-green-400 hover:bg-green-300">Test connection</button>
+          </div>
+
+
+          <div className="modal-action">
+            <form method="dialog">
               <button className="btn">Close</button>
             </form>
           </div>

@@ -6,6 +6,7 @@ import { GeneratedObject } from './types'
 import RiveComponent from '@rive-app/react-canvas';
 import { FaKey } from "react-icons/fa";
 import { FaGithub } from "react-icons/fa";
+import WeaviateConnectorComponent from './weaviate_connector';
 
 interface NavbarComponentProps {
     importAllFromJson: (event: React.ChangeEvent<HTMLInputElement>) => void;
@@ -105,6 +106,10 @@ const NavbarComponent: React.FC<NavbarComponentProps> = ({ generatedObjects, mod
                     <FaKey />
                 </button>
             </div>
+
+            <div className="hidden sm:block h-10 bg-gray-400 opacity-50 w-px mx-4"></div>
+
+            <WeaviateConnectorComponent />
 
             <div className="hidden sm:block h-10 bg-gray-400 opacity-50 w-px mx-4"></div>
 
