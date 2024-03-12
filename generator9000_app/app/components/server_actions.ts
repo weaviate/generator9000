@@ -40,7 +40,9 @@ export async function generateDataBasedPrompt(user_prompt: string, dataFields: D
                 return fieldDesc;
             }).join('; ');
 
-            const prompt = `Given this prompt "${user_prompt}", generate synthetic data adhering to the following data field constraints: ${fieldsDescription}. Produce the output as JSON with field_name: value pairs, ensuring each value respects its field's type and possible values.`;
+            console.log(fieldsDescription)
+
+            const prompt = `Given this prompt "${user_prompt}", generate synthetic data adhering to the following data field constraints: ${fieldsDescription}. Produce the output as non-nested JSON with field_name: value pairs, ensuring each value respects its field's type and possible values.`;
 
             const completion = await openai.chat.completions.create({
                 model: "gpt-4-turbo-preview",

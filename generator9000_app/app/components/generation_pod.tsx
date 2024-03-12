@@ -172,7 +172,7 @@ const GenerationPodComponent: React.FC<GenerationPodComponentProps> = ({ generat
 
         const fieldValuesByName = Object.keys(fieldValues).reduce((acc: { [key: string]: string }, currentId) => {
             // Find the field in dataFields by id
-            const field = dataFields.find(field => field.id === currentId);
+            const field = dataFields.find(field => field.name === currentId);
             if (field) {
                 // TypeScript now understands that acc can be indexed with a string.
                 acc[field.name] = fieldValues[currentId];
@@ -283,7 +283,15 @@ const GenerationPodComponent: React.FC<GenerationPodComponentProps> = ({ generat
 
         if (generateData) {
             setGeneratingData(true);
-            const promise_object = await generateDataBasedPrompt(prompt, dataFields, temperature, id, APISetKey);
+
+            const updatedDataFields = dataFields.map(dataField => ({
+                ...dataField,
+                id: dataField.name || dataField.id, // Replace 'id' with 'name' only if 'name' is not empty
+            }));
+
+            console.log(updatedDataFields)
+
+            const promise_object = await generateDataBasedPrompt(prompt, updatedDataFields, temperature, id, APISetKey);
             const results: any = await promise_object.promise;
 
             if (results) {
@@ -296,6 +304,8 @@ const GenerationPodComponent: React.FC<GenerationPodComponentProps> = ({ generat
                 const data_cost = results.costs
 
                 if (data) {
+
+                    console.log(data)
 
                     // Assuming data is a JSON string; if it's already an object, remove JSON.parse
                     const parsedData = typeof data === 'string' ? JSON.parse(data) : data;
