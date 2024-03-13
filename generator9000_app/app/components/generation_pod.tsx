@@ -46,7 +46,8 @@ const GenerationPodComponent: React.FC<GenerationPodComponentProps> = ({ generat
     const [uploading, setUploading] = useState(false);
 
     const [showAlert, setShowAlert] = useState(false);
-    const [showEmptyAlert, setShowEmptyAlert] = useState(false);
+    const [alertText, setAlertText] = useState("");
+    const [alertType, setAlertType] = useState<"error" | "success">("success")
 
     const imageInputId = `imageInput-${id}`;
     const deleteImageModalId = `delete_image_modal-${id}`;
@@ -63,18 +64,6 @@ const GenerationPodComponent: React.FC<GenerationPodComponentProps> = ({ generat
         // Clean up the timer when the component unmounts or showAlert changes
         return () => clearTimeout(timerId);
     }, [showAlert]);
-
-    useEffect(() => {
-        let timerId: ReturnType<typeof setTimeout>;
-        if (showEmptyAlert) {
-            // Set a timer to hide the alert after 3 seconds
-            timerId = setTimeout(() => {
-                setShowEmptyAlert(false);
-            }, 3000);
-        }
-        // Clean up the timer when the component unmounts or showAlert changes
-        return () => clearTimeout(timerId);
-    }, [showEmptyAlert]);
 
     useEffect(() => {
         if (shouldGenerate) {
@@ -166,7 +155,9 @@ const GenerationPodComponent: React.FC<GenerationPodComponentProps> = ({ generat
         if (generatingImage || generatingData || uploading) {
             return
         } else if (isPodEmpty()) {
-            setShowEmptyAlert(true);
+            setShowAlert(true);
+            setAlertText("I refuse to save empty objects >:)")
+            setAlertType("error")
             return
         }
 
@@ -199,6 +190,8 @@ const GenerationPodComponent: React.FC<GenerationPodComponentProps> = ({ generat
                 resetFieldValues();
                 setImageBase64(null);
                 setShowAlert(true);
+                setAlertText("Saved object")
+                setAlertType("success")
             } else {
                 setUploading(false)
             }
@@ -208,6 +201,8 @@ const GenerationPodComponent: React.FC<GenerationPodComponentProps> = ({ generat
             resetFieldValues();
             setImageBase64(null);
             setShowAlert(true);
+            setAlertText("Saved object")
+            setAlertType("success")
             setUploading(false)
         }
     };
@@ -238,6 +233,9 @@ const GenerationPodComponent: React.FC<GenerationPodComponentProps> = ({ generat
 
             if (image_generation_results.error) {
                 console.error("Error: " + image_generation_results.error)
+                setShowAlert(true);
+                setAlertText("Error: " + image_generation_results.error)
+                setAlertType("error")
             }
 
             const generated_image = image_generation_results.image;
@@ -295,6 +293,9 @@ const GenerationPodComponent: React.FC<GenerationPodComponentProps> = ({ generat
             if (results) {
 
                 if (results.error) {
+                    setShowAlert(true)
+                    setAlertText("Error: " + results.error)
+                    setAlertType("error")
                     console.error("Error: " + results.error)
                 }
 
@@ -320,6 +321,9 @@ const GenerationPodComponent: React.FC<GenerationPodComponentProps> = ({ generat
                         if (image_generation_results) {
 
                             if (image_generation_results.error) {
+                                setShowAlert(true)
+                                setAlertText("Error: " + image_generation_results.error)
+                                setAlertType("error")
                                 console.error("Error: " + image_generation_results.error)
                             }
 
@@ -358,6 +362,9 @@ const GenerationPodComponent: React.FC<GenerationPodComponentProps> = ({ generat
             if (image_generation_results) {
 
                 if (image_generation_results.error) {
+                    setShowAlert(true)
+                    setAlertText("Error: " + image_generation_results.error)
+                    setAlertType("error")
                     console.error("Error: " + image_generation_results.error)
                 }
 
@@ -389,7 +396,7 @@ const GenerationPodComponent: React.FC<GenerationPodComponentProps> = ({ generat
 
     return (
         <div className=''>
-            <div className='shadow-xl rounded-lg p-4 justify-center items-center border-gray border'>
+            <div className={`shadow-xl rounded-lg p-4 justify-center items-center ${showAlert && alertType === "error" ? ("border-red-300 border-2") : ("border-gray border")}`}>
                 <div className='bg-transparent h-full rounded-xl p-4'>
                     <div className='flex justify-center items-center'>
                         {generatingImage && (
@@ -466,18 +473,12 @@ const GenerationPodComponent: React.FC<GenerationPodComponentProps> = ({ generat
 
             </div>
             <div className={`${showAlert ? 'opacity-100' : 'opacity-0'} transition-opacity duration-1000`} role="alert" >
-                <div className="flex gap-2 bg-green-400 shadow-md p-4 mx-4 mt-4 rounded-lg text-xs items-center ">
+                <div className={`flex gap-2 ${alertType === "success" ? ("bg-green-400") : ("bg-red-400")}  shadow-md p-4 mx-4 mt-4 rounded-lg text-xs items-center`}>
                     <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                    <span>Saved Object!</span>
+                    <span>{alertText}</span>
                 </div>
             </div>
 
-            <div className={`${showEmptyAlert ? 'opacity-100' : 'opacity-0'} transition-opacity duration-1000`} role="alert" >
-                <div className="flex gap-2 bg-red-400 shadow-md p-4 mx-4 mt-2 rounded-lg text-xs items-center ">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                    <span>I refuse to save empty objects!</span>
-                </div>
-            </div>
 
             <dialog id={deleteImageModalId} className="modal">
                 <div className="modal-box">

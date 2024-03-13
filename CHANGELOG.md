@@ -3,8 +3,11 @@
 ## Added
 - Clear API Key
 - Easter Egg
+- Add Weaviate Connector
 
 ## Fixed
+
+- Improve Error Messaging
 
 ## Changed
 - UI Changes for improved UX

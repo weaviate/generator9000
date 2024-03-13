@@ -231,6 +231,12 @@ export default function Home() {
             <input type="password" className="grow" value={"meow"} />
           </label>
 
+
+          <div className='flex items-center justify-end gap-3 mt-2'>
+            <p className="text-xs text-light">Remember credentials in browser</p>
+            <input type="checkbox" className="checkbox checkbox-sm" />
+          </div>
+
           <label className="form-control w-full mt-2">
             <div className="label">
               <span className="label-text">Select a collection</span>
@@ -242,17 +248,10 @@ export default function Home() {
             </select>
           </label>
 
-          <div className='flex items-center justify-end gap-3 mt-2'>
-            <p className="text-xs text-light">Remember credentials in browser</p>
-            <input type="checkbox" className="checkbox checkbox-sm" />
-          </div>
-          <div className='flex gap-5 justify-end items-center mt-2'>
-            <button type='button' className="btn bg-green-400 hover:bg-green-300">Test connection</button>
-          </div>
-
-
           <div className="modal-action">
             <form method="dialog">
+              <button type='button' className="btn bg-green-400 hover:bg-green-300 mr-2">Connect</button>
+              <button type='button' className="btn bg-red-400 hover:bg-red-300 mr-2">Clear</button>
               <button className="btn">Close</button>
             </form>
           </div>
