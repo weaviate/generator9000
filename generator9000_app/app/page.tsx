@@ -10,7 +10,7 @@ import GenerationMenuComponent from './components/generation_menu';
 import { IoMdAlert } from "react-icons/io";
 import { HiMiniQuestionMarkCircle } from "react-icons/hi2";
 
-import { get_API_Status } from './actions'
+import { get_API_Status, connect_weaviate } from './actions'
 
 import { DataField, initial_templates, Template, GeneratedObject } from './components/types'
 import { exportAllToJson, importAllFromJson, exportJson } from './components/data_actions'
@@ -31,6 +31,13 @@ export default function Home() {
   const [selectedAPIKey, setSelectedAPIKey] = useState("")
   const [APIKeyEnvAvailable, setAPIKeyEnvAvailable] = useState(false)
   const [saveInBrowser, setSaveInBrowser] = useState(true)
+
+  const [weaviateURL, setWeaviateURL] = useState("")
+  const [weaviateKey, setWeaviateKey] = useState("")
+  const [saveWeaviateCredentials, setSaveWeaviateCredentials] = useState(true)
+  const [weaviateStatus, setWeaviateStatus] = useState<"not connected" | "connecting" | "connected">("not connected")
+  const [selectedCollection, setSelectedConnection] = useState("")
+  const [collection, setCollection] = useState<string[]>([])
 
   const [cost, setCost] = useState(0)
   const [generations, setGenerations] = useState(0)
@@ -64,6 +71,20 @@ export default function Home() {
       setSelectedAPIKey(APIKey)
       setAPIKey(APIKey)
     }
+
+    const weaviate_key = localStorage.getItem('Generator9000_Weaviate_URL');
+
+    if (weaviate_key) {
+      setWeaviateKey(weaviate_key)
+    }
+
+    const weaviate_url = localStorage.getItem('Generator9000_Weaviate_KEY');
+
+    if (weaviate_url) {
+      setWeaviateURL(weaviate_url)
+    }
+
+    handleConnectWeaviate()
 
   }, []);
 
@@ -107,6 +128,36 @@ export default function Home() {
     exportAllToJson(prompt, imagePrompt, cost, generations, timeSpent, dataFields, generatedObjects)
   }
 
+  const handleConnectWeaviate = async () => {
+    if (saveWeaviateCredentials) {
+      localStorage.setItem('Generator9000_Weaviate_URL', weaviateURL);
+      localStorage.setItem('Generator9000_Weaviate_KEY', weaviateKey);
+    }
+
+    if (weaviateKey && weaviateURL && selectedAPIKey) {
+      setWeaviateStatus("connecting")
+      const collections_payload: any = await connect_weaviate(weaviateURL, weaviateKey, selectedAPIKey)
+      if (collections_payload) {
+
+        if (collections_payload.error != "") {
+          setCollection([])
+          setSelectedConnection("")
+          setWeaviateStatus("not connected")
+        } else {
+          console.log(collections_payload.classes)
+          setCollection(collections_payload.classes)
+          setSelectedConnection("Create new")
+          setWeaviateStatus("connected")
+        }
+      } else {
+        setWeaviateStatus("not connected")
+      }
+    } else {
+      setWeaviateStatus("not connected")
+    }
+
+  }
+
   const handleExportJSON = () => {
     exportJson(generatedObjects)
   }
@@ -143,7 +194,7 @@ export default function Home() {
   return (
     <main className="p-8">
 
-      <NavbarComponent importAllFromJson={handleImportAllFromJSON} exportAllToJson={handleExportAllToJSON} mode={mode} setMode={setMode} generatedObjects={generatedObjects} handleExportJSON={handleExportJSON} apiKeyAvailable={APIKeyEnvAvailable || selectedAPIKey != ""} />
+      <NavbarComponent weaviateStatus={weaviateStatus} importAllFromJson={handleImportAllFromJSON} exportAllToJson={handleExportAllToJSON} mode={mode} setMode={setMode} generatedObjects={generatedObjects} handleExportJSON={handleExportJSON} apiKeyAvailable={APIKeyEnvAvailable || selectedAPIKey != ""} />
 
       <div className='flex justify-center mt-4'>
         <div className='w-1/3'>
@@ -183,13 +234,13 @@ export default function Home() {
         <div className="modal-box">
           <h3 className="font-bold text-lg">Setup OpenAI Key</h3>
           <p className="py-4 text-xs">You can set your OpenAI API Key here:</p>
-          <label className="cursor-pointer label">
-            <span className="label-text">Remember key in browser</span>
-            <input type="checkbox" className="checkbox checkbox-sm" checked={saveInBrowser} onChange={(e) => { setSaveInBrowser(e.target.checked) }} />
-          </label>
           <label className="input input-bordered flex items-center gap-2">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-4 h-4 opacity-70"><path fillRule="evenodd" d="M14 6a4 4 0 0 1-4.899 3.899l-1.955 1.955a.5.5 0 0 1-.353.146H5v1.5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1-.5-.5v-2.293a.5.5 0 0 1 .146-.353l3.955-3.955A4 4 0 1 1 14 6Zm-4-2a.75.75 0 0 0 0 1.5.5.5 0 0 1 .5.5.75.75 0 0 0 1.5 0 2 2 0 0 0-2-2Z" clipRule="evenodd" /></svg>
             <input type="password" className="grow" value={APIKey} onChange={(e) => { setAPIKey(e.target.value) }} />
+          </label>
+          <label className="cursor-pointer label">
+            <span className="label-text text-xs text-light">Remember key in browser</span>
+            <input type="checkbox" className="checkbox checkbox-sm" checked={saveInBrowser} onChange={(e) => { setSaveInBrowser(e.target.checked) }} />
           </label>
           <div className='flex justify-center items-center gap-3 bg-red-300 rounded-lg shadow-lg mt-2'>
             <IoMdAlert />
@@ -216,42 +267,50 @@ export default function Home() {
             <summary className="collapse-title items-center">How to setup Weaviate?</summary>
             <div className="collapse-content">
               <p className='text-sm font-light'>Connect to Weaviate to automatically ingest generated objects.</p>
-              <p className='text-sm font-light mt-2'>Weaviate is an AI-native vector database used for many AI applications. You can easily create a free cluster on Weaviate Cloud Services (WCS) to try it out.</p>
-              <p className='text-sm font-light mt-2'>https://console.weaviate.cloud/dashboard</p>
+              <p className='text-sm font-light mt-2'>Weaviate is an AI-native vector database used for many AI applications. You can create a free cluster on Weaviate Cloud Services (WCS) to try it out.</p>
+              <p className='text-sm font-light mt-2'>
+                <a href="https://console.weaviate.cloud/dashboard" target="_blank" rel="noopener noreferrer">
+                  https://console.weaviate.cloud/dashboard
+                </a>
+              </p>
             </div>
           </details>
 
           <h1 className="text-base mt-5">Enter your credentials</h1>
           <label className="input input-bordered flex items-center gap-2 mt-2">
             <p className='text-xs'>Weaviate URL</p>
-            <input type="password" className="grow" value={"meow"} />
+            <input type="password" className="grow" value={weaviateURL} onChange={(e) => { setWeaviateURL(e.target.value) }} />
           </label>
           <label className="input input-bordered flex items-center gap-2 mt-2">
             <p className='text-xs'>Weaviate Key</p>
-            <input type="password" className="grow" value={"meow"} />
+            <input type="password" className="grow" value={weaviateKey} onChange={(e) => { setWeaviateKey(e.target.value) }} />
           </label>
 
 
           <div className='flex items-center justify-end gap-3 mt-2'>
             <p className="text-xs text-light">Remember credentials in browser</p>
-            <input type="checkbox" className="checkbox checkbox-sm" />
+            <input type="checkbox" className="checkbox checkbox-sm" checked={saveWeaviateCredentials} onChange={(e) => { setSaveWeaviateCredentials(e.target.checked) }} />
+          </div>
+
+          <div className=' flex gap-2 justify-end items-center mt-2'>
+            <button type='button' onClick={handleConnectWeaviate} className="btn bg-green-400 hover:bg-green-300 mr-2">Connect</button>
+            <button type='button' className="btn bg-pink-300 hover:bg-pink-200 mr-2">Clear</button>
           </div>
 
           <label className="form-control w-full mt-2">
             <div className="label">
               <span className="label-text">Select a collection</span>
             </div>
-            <select disabled className="select select-bordered">
-              <option>Documents</option>
-              <option>Objects</option>
-              <option>Types</option>
+            <select disabled={weaviateStatus === "not connected"} className="select select-bordered" defaultValue={selectedCollection}>
+              {collection.length > 0 && (<option>Create new</option>)}
+              {collection.map((className, index) => (
+                <option>{className}</option>
+              ))}
             </select>
           </label>
 
           <div className="modal-action">
             <form method="dialog">
-              <button type='button' className="btn bg-green-400 hover:bg-green-300 mr-2">Connect</button>
-              <button type='button' className="btn bg-red-400 hover:bg-red-300 mr-2">Clear</button>
               <button className="btn">Close</button>
             </form>
           </div>

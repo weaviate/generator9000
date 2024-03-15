@@ -16,10 +16,11 @@ interface NavbarComponentProps {
     mode: string;
     generatedObjects: GeneratedObject[];
     apiKeyAvailable: boolean;
+    weaviateStatus: "not connected" | "connecting" | "connected",
 
 }
 
-const NavbarComponent: React.FC<NavbarComponentProps> = ({ generatedObjects, mode, apiKeyAvailable, importAllFromJson, exportAllToJson, setMode, handleExportJSON }) => {
+const NavbarComponent: React.FC<NavbarComponentProps> = ({ weaviateStatus, generatedObjects, mode, apiKeyAvailable, importAllFromJson, exportAllToJson, setMode, handleExportJSON }) => {
 
     const soundRef = useRef<HTMLAudioElement | null>(null);
 
@@ -109,7 +110,7 @@ const NavbarComponent: React.FC<NavbarComponentProps> = ({ generatedObjects, mod
 
             <div className="hidden sm:block h-10 bg-gray-400 opacity-50 w-px mx-4"></div>
 
-            <WeaviateConnectorComponent />
+            <WeaviateConnectorComponent weaviateStatus={weaviateStatus} />
 
             <div className="hidden sm:block h-10 bg-gray-400 opacity-50 w-px mx-4"></div>
 
