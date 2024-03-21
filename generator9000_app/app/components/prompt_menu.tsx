@@ -7,6 +7,7 @@ import { Template, DataField } from './types'
 
 import { MdOutgoingMail } from "react-icons/md";
 import { IoMdAddCircle } from "react-icons/io";
+import { MdCollectionsBookmark } from "react-icons/md";
 
 import { v4 as uuidv4 } from 'uuid';
 
@@ -18,6 +19,11 @@ interface PromptMenuComponentProps {
     selectedTemplate: string;
     templates: Template[];
     dataFields: DataField[];
+    weaviateStatus: "not connected" | "connecting" | "connected";
+    weaviateCollectionName: string;
+    selectedImageField: string;
+    setSelectedImageField: (_name: string) => void;
+    setWeaviateCollectionName: (_name: string) => void;
     setPrompt: (_prompt: string) => void;
     setImagePrompt: (_prompt: string) => void;
     setSelectedTemplate: (_template: string) => void;
@@ -25,7 +31,7 @@ interface PromptMenuComponentProps {
     setGenerateOptions: (data: boolean, image: boolean) => void;
 }
 
-const PromptMenuComponent: React.FC<PromptMenuComponentProps> = ({ prompt, imagePrompt, selectedTemplate, templates, dataFields, setPrompt, setImagePrompt, setDataFields, setSelectedTemplate, setGenerateOptions }) => {
+const PromptMenuComponent: React.FC<PromptMenuComponentProps> = ({ prompt, selectedImageField, imagePrompt, selectedTemplate, templates, dataFields, weaviateStatus, weaviateCollectionName, setPrompt, setImagePrompt, setDataFields, setSelectedTemplate, setGenerateOptions, setWeaviateCollectionName, setSelectedImageField }) => {
 
     const router = useRouter();
     const searchParams = useSearchParams()
@@ -62,12 +68,32 @@ const PromptMenuComponent: React.FC<PromptMenuComponentProps> = ({ prompt, image
         newSearchParams.set('template', name);
         router.push(`/?${newSearchParams}`, { scroll: false });
         const template = templates.find(t => t.name === name);
+
         if (template) {
+            if (template.name != "New Collection" && weaviateStatus === "connected") {
+                setWeaviateCollectionName(template.name)
+            } else {
+                setWeaviateCollectionName("")
+            }
+
             setPrompt(template.prompt);
             setDataFields(template.datafields);
             setImagePrompt(template.imagePrompt)
+
+            if (template.imageField) {
+                setSelectedImageField(template.imageField)
+            }
+
         }
     };
+
+    const handleImageFieldChange = (_template: string, _field: string) => {
+        const template = templates.find(t => t.name === _template);
+
+        if (template) {
+            template.imageField = _field
+        }
+    }
 
     const addDataField = () => {
         const newDataField: DataField = {
@@ -113,6 +139,20 @@ const PromptMenuComponent: React.FC<PromptMenuComponentProps> = ({ prompt, image
                         ))}
                     </select>
                 </div>
+
+                {weaviateStatus === "connected" && (
+                    <div>
+                        <p className='text-xs font-light mb-1'>Saving objects to</p>
+                        <label className="input input-bordered flex items-center gap-2 mt-2 mb-6">
+                            <div className="flex gap-2 items-center">
+                                <MdCollectionsBookmark />
+                                <p className='text-xs'>Weaviate Collection:</p>
+                            </div>
+                            <input disabled={selectedTemplate === weaviateCollectionName} type="text" className="grow text-xs font-bold" value={weaviateCollectionName} onChange={(e) => { setWeaviateCollectionName(e.target.value) }} />
+                        </label>
+                    </div>
+                )}
+
                 <p className='text-xs font-light mb-1'>Data Prompt</p>
                 <label className="label cursor-pointer">
                     <p className="label-text text-xs opacity-50">Enable Data Generation</p>
@@ -130,6 +170,23 @@ const PromptMenuComponent: React.FC<PromptMenuComponentProps> = ({ prompt, image
             <div className='p-2'>
                 <p className=''>Data Fields</p>
 
+                <div className='flex justify-center items-center mt-2'>
+                    <p className='text-sm w-1/3'>Select Image Field</p>
+                    <select
+                        value={selectedImageField}
+                        disabled={dataFields.length == 0}
+                        onChange={(e) => { setSelectedImageField(e.target.value); handleImageFieldChange(selectedTemplate, e.target.value) }}
+                        className="select select-sm select-bordered w-2/3">
+                        {
+                            dataFields.filter(field => field.name.trim() !== "").map((field, index) => (
+                                <option key={index} value={field.name}>
+                                    {field.name}
+                                </option>
+                            ))
+                        }
+                    </select>
+                </div>
+
 
                 {dataFields.length <= 0 && (
                     <div className='my-2 text-xs font-light flex justify-start items-center opacity-50'>
@@ -141,15 +198,21 @@ const PromptMenuComponent: React.FC<PromptMenuComponentProps> = ({ prompt, image
                     <DataFieldComponent
                         key={field.id}
                         dataField={field}
+                        imageField={selectedImageField === field.name && field.name.length > 0}
                         deleteDataField={() => deleteDataField(field.id)}
                         updateDataField={(updatedField) => updateDataField(field.id, updatedField)}
+                        _disabled={selectedTemplate === weaviateCollectionName && weaviateStatus === "connected"}
                     />
                 ))}
-                <div className='flex justify-center items-center mt-3'>
-                    <button className='p-4 flex justify-center items-center gap-2 rounded-lg shadow-lg bg-green-400 text-xs duration-300 ease-in-out transform hover:scale-105' onClick={addDataField}>
-                        <IoMdAddCircle />
-                    </button>
-                </div>
+
+                {selectedTemplate != weaviateCollectionName && weaviateStatus === "connected" && (
+                    <div className='flex justify-center items-center mt-3'>
+                        <button className='p-4 flex justify-center items-center gap-2 rounded-lg shadow-lg bg-green-400 text-xs duration-300 ease-in-out transform hover:scale-105' onClick={addDataField}>
+                            <IoMdAddCircle />
+                        </button>
+                    </div>
+                )}
+
             </div>
         </div>
     );

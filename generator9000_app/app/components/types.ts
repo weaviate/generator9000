@@ -124,6 +124,7 @@ export interface Template {
     name: string;
     prompt: string;
     imagePrompt: string;
+    imageField?: string;
     datafields: DataField[]; // Correctly type the datafields property here
 }
 
@@ -134,25 +135,25 @@ export const cat_template: Template = {
     datafields: [{
         id: "name",
         name: "name",
-        type: "string",
+        type: "text",
         values: [],
     },
     {
         id: "color",
         name: "color",
-        type: "string",
+        type: "text",
         values: [],
     },
     {
         id: "short_description",
         name: "short_description",
-        type: "string",
+        type: "text",
         values: [],
     },
     {
         id: "origin",
         name: "origin",
-        type: "string",
+        type: "text",
         values: [],
     },
     {
@@ -164,13 +165,13 @@ export const cat_template: Template = {
     {
         id: "fun_fact",
         name: "fun_fact",
-        type: "string",
+        type: "text",
         values: [],
     },
     {
         id: "race",
         name: "race",
-        type: "string[]",
+        type: "text[]",
         values: [],
     }
     ]
@@ -183,7 +184,7 @@ export const dating_template: Template = {
     datafields: [{
         id: "name",
         name: "name",
-        type: "string",
+        type: "text",
         values: [],
     },
     {
@@ -195,19 +196,19 @@ export const dating_template: Template = {
     {
         id: "country",
         name: "country",
-        type: "string",
+        type: "text",
         values: [],
     },
     {
         id: "gender",
         name: "gender",
-        type: "string",
+        type: "text",
         values: ["male", "female", "other"],
     },
     {
         id: "description",
         name: "description",
-        type: "string",
+        type: "text",
         values: [],
     }
     ]
@@ -220,7 +221,7 @@ export const electronics_template: Template = {
     datafields: [{
         id: "name",
         name: "name",
-        type: "string",
+        type: "text",
         values: [],
     },
     {
@@ -232,7 +233,7 @@ export const electronics_template: Template = {
     {
         id: "electronic_type",
         name: "electronic_type",
-        type: "string",
+        type: "text",
         values: [],
     },
     {
@@ -244,7 +245,7 @@ export const electronics_template: Template = {
     {
         id: "history",
         name: "history",
-        type: "string",
+        type: "text",
         values: [],
     }
     ]
@@ -257,7 +258,7 @@ export const fastfood_template: Template = {
     datafields: [{
         id: "name",
         name: "name",
-        type: "string",
+        type: "text",
         values: [],
     },
     {
@@ -269,7 +270,7 @@ export const fastfood_template: Template = {
     {
         id: "ingredients",
         name: "ingredients",
-        type: "string[]",
+        type: "text[]",
         values: [],
     },
     {
@@ -281,7 +282,7 @@ export const fastfood_template: Template = {
     {
         id: "description",
         name: "description",
-        type: "string",
+        type: "text",
         values: [],
     }
     ]
@@ -294,7 +295,7 @@ export const foodingredients_template: Template = {
     datafields: [{
         id: "name",
         name: "name",
-        type: "string",
+        type: "text",
         values: [],
     },
     {
@@ -306,19 +307,19 @@ export const foodingredients_template: Template = {
     {
         id: "nutrients",
         name: "nutrients",
-        type: "string[]",
+        type: "text[]",
         values: [],
     },
     {
         id: "origin",
         name: "origin",
-        type: "string",
+        type: "text",
         values: [],
     },
     {
         id: "food_type",
         name: "food_type",
-        type: "string[]",
+        type: "text[]",
         values: [],
     },
     {
@@ -330,12 +331,11 @@ export const foodingredients_template: Template = {
     {
         id: "description",
         name: "description",
-        type: "string",
+        type: "text",
         values: [],
     }
     ]
 }
-
 
 export const empty_template: Template = {
     name: "Blank",
@@ -351,25 +351,25 @@ export const clothing_template: Template = {
     datafields: [{
         id: "name",
         name: "name",
-        type: "string",
+        type: "text",
         values: [],
     },
     {
         id: "brand",
         name: "brand",
-        type: "string",
+        type: "text",
         values: brands
     },
     {
         id: "category",
         name: "category",
-        type: "string",
+        type: "text",
         values: ["Clothing"],
     },
     {
         id: "sub_category",
         name: "sub_category",
-        type: "string",
+        type: "text",
         values: clothingSubCategories,
     },
     {
@@ -387,19 +387,19 @@ export const clothing_template: Template = {
     {
         id: "description",
         name: "description",
-        type: "string",
+        type: "text",
         values: [],
     },
     {
         id: "material",
         name: "material",
-        type: "string[]",
+        type: "text[]",
         values: clothingMaterials,
     },
     {
         id: "colors",
         name: "colors",
-        type: "string[]",
+        type: "text[]",
         values: colors,
     }
     ]
@@ -412,25 +412,25 @@ export const shoes_template: Template = {
     datafields: [{
         id: "name",
         name: "name",
-        type: "string",
+        type: "text",
         values: [],
     },
     {
         id: "brand",
         name: "brand",
-        type: "string",
+        type: "text",
         values: brands
     },
     {
         id: "category",
         name: "category",
-        type: "string",
+        type: "text",
         values: ["Shoes"],
     },
     {
         id: "sub_category",
         name: "sub_category",
-        type: "string",
+        type: "text",
         values: shoesSubCategories,
     },
     {
@@ -448,19 +448,19 @@ export const shoes_template: Template = {
     {
         id: "description",
         name: "description",
-        type: "string",
+        type: "text",
         values: [],
     },
     {
         id: "material",
         name: "material",
-        type: "string[]",
+        type: "text[]",
         values: clothingMaterials,
     },
     {
         id: "colors",
         name: "colors",
-        type: "string[]",
+        type: "text[]",
         values: colors,
     }
     ]
@@ -473,25 +473,25 @@ export const accessoires_template: Template = {
     datafields: [{
         id: "name",
         name: "name",
-        type: "string",
+        type: "text",
         values: [],
     },
     {
         id: "brand",
         name: "brand",
-        type: "string",
+        type: "text",
         values: brands
     },
     {
         id: "category",
         name: "category",
-        type: "string",
+        type: "text",
         values: ["Accessories"],
     },
     {
         id: "sub_category",
         name: "sub_category",
-        type: "string",
+        type: "text",
         values: accessoriesSubCategories,
     },
     {
@@ -509,19 +509,19 @@ export const accessoires_template: Template = {
     {
         id: "description",
         name: "description",
-        type: "string",
+        type: "text",
         values: [],
     },
     {
         id: "material",
         name: "material",
-        type: "string[]",
+        type: "text[]",
         values: accessoryMaterials,
     },
     {
         id: "colors",
         name: "colors",
-        type: "string[]",
+        type: "text[]",
         values: colors,
     }
     ]
@@ -534,25 +534,25 @@ export const outerwear_template: Template = {
     datafields: [{
         id: "name",
         name: "name",
-        type: "string",
+        type: "text",
         values: [],
     },
     {
         id: "brand",
         name: "brand",
-        type: "string",
+        type: "text",
         values: brands
     },
     {
         id: "category",
         name: "category",
-        type: "string",
+        type: "text",
         values: ["Outerwear"],
     },
     {
         id: "sub_category",
         name: "sub_category",
-        type: "string",
+        type: "text",
         values: outerwearSubCategories,
     },
     {
@@ -570,19 +570,19 @@ export const outerwear_template: Template = {
     {
         id: "description",
         name: "description",
-        type: "string",
+        type: "text",
         values: [],
     },
     {
         id: "material",
         name: "material",
-        type: "string[]",
+        type: "text[]",
         values: clothingMaterials,
     },
     {
         id: "colors",
         name: "colors",
-        type: "string[]",
+        type: "text[]",
         values: colors,
     }
     ]
@@ -596,19 +596,19 @@ export const kitchenware_template: Template = {
     datafields: [{
         id: "name",
         name: "name",
-        type: "string",
+        type: "text",
         values: [],
     },
     {
         id: "brand",
         name: "brand",
-        type: "string",
+        type: "text",
         values: []
     },
     {
         id: "category",
         name: "category",
-        type: "string",
+        type: "text",
         values: [],
     },
     {
@@ -626,19 +626,19 @@ export const kitchenware_template: Template = {
     {
         id: "description",
         name: "description",
-        type: "string",
+        type: "text",
         values: [],
     },
     {
         id: "material",
         name: "material",
-        type: "string[]",
+        type: "text[]",
         values: [],
     },
     {
         id: "colors",
         name: "colors",
-        type: "string[]",
+        type: "text[]",
         values: colors,
     }
     ]
@@ -651,13 +651,13 @@ export const book_template: Template = {
     datafields: [{
         id: "title",
         name: "title",
-        type: "string",
+        type: "text",
         values: [],
     },
     {
         id: "author",
         name: "author",
-        type: "string",
+        type: "text",
         values: []
     },
     {
@@ -669,19 +669,19 @@ export const book_template: Template = {
     {
         id: "abstract",
         name: "abstract",
-        type: "string",
+        type: "text",
         values: [],
     },
     {
         id: "publisher",
         name: "publisher",
-        type: "string",
+        type: "text",
         values: [],
     },
     {
         id: "genre",
         name: "genre",
-        type: "string",
+        type: "text",
         values: [],
     }
     ]

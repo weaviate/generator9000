@@ -18,6 +18,7 @@ interface GenerationPodComponentProps {
     selectedBucket: string;
     generateData: boolean;
     generateImage: boolean;
+    selectedImageField: string;
 
     onSaveObject: (generatedObject: GeneratedObject) => void;
     imageSize: string;
@@ -35,7 +36,7 @@ interface GenerationPodComponentProps {
 
 }
 
-const GenerationPodComponent: React.FC<GenerationPodComponentProps> = ({ generateData, generateImage, APIEnvKeyAvailable, APISetKey, includeImageBase64, selectedBucket, prompt, imagePrompt, shouldGenerate, shouldSave, dataFields, onSaveObject, onSaveComplete, id, imageSize, imageStyle, temperature, addGenerations, addCosts, addTime, onGenerationComplete }) => {
+const GenerationPodComponent: React.FC<GenerationPodComponentProps> = ({ generateData, generateImage, selectedImageField, APIEnvKeyAvailable, APISetKey, includeImageBase64, selectedBucket, prompt, imagePrompt, shouldGenerate, shouldSave, dataFields, onSaveObject, onSaveComplete, id, imageSize, imageStyle, temperature, addGenerations, addCosts, addTime, onGenerationComplete }) => {
 
     const [fieldValues, setFieldValues] = useState<{ [key: string]: string }>({});
     const [imageBase64, setImageBase64] = useState<string | null>(null);
@@ -165,8 +166,18 @@ const GenerationPodComponent: React.FC<GenerationPodComponentProps> = ({ generat
             // Find the field in dataFields by id
             const field = dataFields.find(field => field.name === currentId);
             if (field) {
-                // TypeScript now understands that acc can be indexed with a string.
-                acc[field.name] = fieldValues[currentId];
+
+                let value = fieldValues[currentId];
+
+                if (field.name === selectedImageField) {
+                    if (includeImageBase64) {
+                        value = imageBase64 || "";
+                    } else {
+                        value = imageLink || "";
+                    }
+                }
+
+                acc[field.name] = value;
             }
             return acc;
         }, {} as { [key: string]: string }); // Cast the initial value of reduce to the correct type
@@ -176,7 +187,7 @@ const GenerationPodComponent: React.FC<GenerationPodComponentProps> = ({ generat
         if (includeImageBase64) {
             onSaveObject({ ...fieldValuesByName, id: uniqueId, imageBase64 });
         } else {
-            onSaveObject({ ...fieldValuesByName, id: uniqueId });
+            onSaveObject({ ...fieldValuesByName, id: uniqueId, imageURL: imageLink });
         }
 
         if (selectedBucket === "AWS Bucket" && imageBase64) {
@@ -434,7 +445,7 @@ const GenerationPodComponent: React.FC<GenerationPodComponentProps> = ({ generat
                     </div>
                 </div>
                 <div className='mt-4'>
-                    {dataFields.map(field => (
+                    {dataFields.filter(field => field.name !== selectedImageField).map(field => (
                         <div key={field.id} className="mb-2 flex justify-between items-center gap-2">
                             <div className='flex items-center justify-start w-1/3'>
                                 <label className="text-sm font-light">{field.name}</label>

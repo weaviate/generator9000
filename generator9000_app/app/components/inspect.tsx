@@ -7,11 +7,12 @@ import { TiDelete } from "react-icons/ti";
 
 interface InspectComponentProps {
     generatedObjects: GeneratedObject[];
+    selectedImageField: string;
     onDelete: (index: number) => void;
 
 }
 
-const InspectModeComponent: React.FC<InspectComponentProps> = ({ generatedObjects, onDelete }) => {
+const InspectModeComponent: React.FC<InspectComponentProps> = ({ generatedObjects, selectedImageField, onDelete }) => {
 
     const [deleteCandidateIndex, setDeleteCandidateIndex] = useState<number | null>(null);
 
@@ -58,7 +59,7 @@ const InspectModeComponent: React.FC<InspectComponentProps> = ({ generatedObject
                         {fieldValues.imageBase64 ? (
                             <img src={fieldValues.imageBase64} alt={`Uploaded Object ${index + 1}`} className="max-w-full h-auto rounded-lg shadow-lg" />
                         ) : (
-                            <p>No Image</p>
+                            <p></p>
                         )}
                         {fieldValues.imageURL ? (
                             <img src={fieldValues.imageURL} alt={`Uploaded Object ${index + 1}`} className="max-w-full h-auto" />
@@ -66,7 +67,7 @@ const InspectModeComponent: React.FC<InspectComponentProps> = ({ generatedObject
                             <p></p>
                         )}
                         {Object.entries(fieldValues).map(([key, value]) => {
-                            if (key != 'imageBase64' && key != 'imageURL') {
+                            if (key != 'imageBase64' && key != 'imageURL' && key != selectedImageField) {
                                 return (
                                     <div key={key} className="p-2">
                                         <h3 className="font-bold">{key}</h3>

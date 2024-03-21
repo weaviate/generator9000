@@ -139,8 +139,14 @@ const NavbarComponent: React.FC<NavbarComponentProps> = ({ weaviateStatus, gener
                 <div className="hidden sm:block h-10 bg-gray-400 opacity-50 w-px"></div>
 
                 <button disabled={!apiKeyAvailable} className=" bg-pink-300 p-4 text-xs rounded-lg shadow-lg font-bold duration-300 ease-in-out transform hover:scale-105" onClick={() => setMode(mode === "Generation" ? "Inspect" : "Generation")}>
-                    {mode === "Generation" ? "Inspect Objects (" + generatedObjects.length + ")" : "Generate Objects"}
+                    {mode === "Generation" ? "Local Objects (" + generatedObjects.length + ")" : "Generate Objects"}
                 </button>
+
+                {weaviateStatus === "connected" && (
+                    <button className=" bg-green-300 p-4 text-xs rounded-lg shadow-lg font-bold duration-300 ease-in-out transform hover:scale-105">
+                        Weaviate Objects
+                    </button>
+                )}
 
                 <div className="hidden sm:block h-10 bg-gray-400 opacity-50 w-px"></div>
 

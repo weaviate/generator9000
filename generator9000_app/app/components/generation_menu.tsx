@@ -31,6 +31,7 @@ interface GenerationMenuComponentProps {
     APISetKey: string;
     generateData: boolean;
     generateImage: boolean;
+    selectedImageField: string;
 
 
     setGenerations: (_n: number) => void;
@@ -43,7 +44,7 @@ interface GenerationMenuComponentProps {
     addTimeSpent: (_n: number) => void;
 }
 
-const GenerationMenuComponent: React.FC<GenerationMenuComponentProps> = ({ generateData, generateImage, addGenerations, addCosts, addTimeSpent, APIEnvKeyAvailable, APISetKey, generations, cost, timeSpent, mode, imagePrompt, prompt, dataFields, generatedObjects, saveGeneratedObjects, handleDelete }) => {
+const GenerationMenuComponent: React.FC<GenerationMenuComponentProps> = ({ generateData, selectedImageField, generateImage, addGenerations, addCosts, addTimeSpent, APIEnvKeyAvailable, APISetKey, generations, cost, timeSpent, mode, imagePrompt, prompt, dataFields, generatedObjects, saveGeneratedObjects, handleDelete }) => {
 
     const [imageSize, setImageSize] = useState("1024x1024");
     const [imageStyle, setImageStyle] = useState("vivid")
@@ -125,6 +126,7 @@ const GenerationMenuComponent: React.FC<GenerationMenuComponentProps> = ({ gener
                                 id={`POD${index + 1}`}
                                 addGenerations={addGenerations}
                                 addCosts={addCosts}
+                                selectedImageField={selectedImageField}
                                 addTime={addTimeSpent}
                                 imagePrompt={imagePrompt}
                                 onSaveObject={saveGeneratedObjects}
@@ -147,7 +149,7 @@ const GenerationMenuComponent: React.FC<GenerationMenuComponentProps> = ({ gener
                         ))}
                     </div>
                 ) : (
-                    <InspectModeComponent generatedObjects={generatedObjects} onDelete={handleDelete} />
+                    <InspectModeComponent generatedObjects={generatedObjects} onDelete={handleDelete} selectedImageField={selectedImageField} />
                 )}
             </div>
 

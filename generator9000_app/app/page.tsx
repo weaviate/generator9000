@@ -9,6 +9,11 @@ import PromptMenuComponent from './components/prompt_menu';
 import GenerationMenuComponent from './components/generation_menu';
 import { IoMdAlert } from "react-icons/io";
 import { HiMiniQuestionMarkCircle } from "react-icons/hi2";
+import { IoServer } from "react-icons/io5";
+import { FaKey } from "react-icons/fa";
+import { FaHeart } from "react-icons/fa";
+import { IoCloudOfflineSharp } from "react-icons/io5";
+import { MdError } from "react-icons/md";
 
 import { get_API_Status, connect_weaviate } from './actions'
 
@@ -21,6 +26,7 @@ export default function Home() {
   const [prompt, setPrompt] = useState("")
   const [imagePrompt, setImagePrompt] = useState("")
   const [selectedTemplate, setSelectedTemplate] = useState("Empty"); // Track the selected template
+  const [selectedImageField, setSelectedImageField] = useState("")
   const [templates, setTemplates] = useState<Template[]>(initial_templates);
 
   const [generatedObjects, setGeneratedObjects] = useState<GeneratedObject[]>([]);
@@ -36,8 +42,8 @@ export default function Home() {
   const [weaviateKey, setWeaviateKey] = useState("")
   const [saveWeaviateCredentials, setSaveWeaviateCredentials] = useState(true)
   const [weaviateStatus, setWeaviateStatus] = useState<"not connected" | "connecting" | "connected">("not connected")
-  const [selectedCollection, setSelectedConnection] = useState("")
-  const [collection, setCollection] = useState<string[]>([])
+  const [weaviateError, setWeaviateError] = useState("")
+  const [weaviateCollectionName, setWeaviateCollectionName] = useState("")
 
   const [cost, setCost] = useState(0)
   const [generations, setGenerations] = useState(0)
@@ -72,19 +78,22 @@ export default function Home() {
       setAPIKey(APIKey)
     }
 
-    const weaviate_key = localStorage.getItem('Generator9000_Weaviate_URL');
+    const weaviate_key = localStorage.getItem('Generator9000_Weaviate_KEY');
 
     if (weaviate_key) {
       setWeaviateKey(weaviate_key)
     }
 
-    const weaviate_url = localStorage.getItem('Generator9000_Weaviate_KEY');
+    const weaviate_url = localStorage.getItem('Generator9000_Weaviate_URL');
 
     if (weaviate_url) {
       setWeaviateURL(weaviate_url)
     }
 
-    handleConnectWeaviate()
+    if (weaviate_url && weaviate_key && APIKey) {
+      handleConnectWeaviate(weaviate_url, weaviate_key, APIKey)
+    }
+
 
   }, []);
 
@@ -128,34 +137,52 @@ export default function Home() {
     exportAllToJson(prompt, imagePrompt, cost, generations, timeSpent, dataFields, generatedObjects)
   }
 
-  const handleConnectWeaviate = async () => {
-    if (saveWeaviateCredentials) {
-      localStorage.setItem('Generator9000_Weaviate_URL', weaviateURL);
-      localStorage.setItem('Generator9000_Weaviate_KEY', weaviateKey);
-    }
+  const startUpConnectWeaviate = async () => {
 
-    if (weaviateKey && weaviateURL && selectedAPIKey) {
+  }
+
+  const handleConnectWeaviate = async (_url: string, _key: string, _api: string) => {
+
+    console.log("START")
+
+    if (_key && _url && _api) {
       setWeaviateStatus("connecting")
-      const collections_payload: any = await connect_weaviate(weaviateURL, weaviateKey, selectedAPIKey)
+      const collections_payload: any = await connect_weaviate(_url, _key, _api)
       if (collections_payload) {
 
         if (collections_payload.error != "") {
-          setCollection([])
-          setSelectedConnection("")
           setWeaviateStatus("not connected")
+          setWeaviateError(collections_payload.error)
+          setTemplates(initial_templates)
         } else {
-          console.log(collections_payload.classes)
-          setCollection(collections_payload.classes)
-          setSelectedConnection("Create new")
+
+          if (saveWeaviateCredentials) {
+            localStorage.setItem('Generator9000_Weaviate_URL', _url);
+            localStorage.setItem('Generator9000_Weaviate_KEY', _key);
+          }
+          setTemplates(collections_payload.templates)
+          setSelectedTemplate(collections_payload.templates[0])
           setWeaviateStatus("connected")
+          setWeaviateError("")
         }
       } else {
         setWeaviateStatus("not connected")
+        setWeaviateError("")
       }
     } else {
       setWeaviateStatus("not connected")
+      setWeaviateError("")
     }
 
+  }
+
+  const handleClearWeaviate = () => {
+    localStorage.removeItem('Generator9000_Weaviate_URL');
+    localStorage.removeItem('Generator9000_Weaviate_KEY');
+    setWeaviateKey("")
+    setWeaviateURL("")
+    setWeaviateStatus("not connected")
+    setWeaviateError("")
   }
 
   const handleExportJSON = () => {
@@ -199,12 +226,12 @@ export default function Home() {
       <div className='flex justify-center mt-4'>
         <div className='w-1/3'>
           <Suspense>
-            <PromptMenuComponent setGenerateOptions={setGenerateOptions} prompt={prompt} imagePrompt={imagePrompt} setPrompt={setPrompt} setImagePrompt={setImagePrompt} templates={templates} setSelectedTemplate={setSelectedTemplate} selectedTemplate={selectedTemplate} dataFields={dataFields} setDataFields={setDataFields} />
+            <PromptMenuComponent setGenerateOptions={setGenerateOptions} prompt={prompt} imagePrompt={imagePrompt} setPrompt={setPrompt} setImagePrompt={setImagePrompt} templates={templates} setSelectedTemplate={setSelectedTemplate} selectedTemplate={selectedTemplate} dataFields={dataFields} setDataFields={setDataFields} weaviateStatus={weaviateStatus} weaviateCollectionName={weaviateCollectionName} setWeaviateCollectionName={setWeaviateCollectionName} selectedImageField={selectedImageField} setSelectedImageField={setSelectedImageField} />
           </Suspense>
         </div>
         <div className='w-2/3'>
 
-          <GenerationMenuComponent generateData={generateData}
+          <GenerationMenuComponent generateData={generateData} selectedImageField={selectedImageField}
             generateImage={generateImage} APIEnvKeyAvailable={APIKeyEnvAvailable} APISetKey={selectedAPIKey} prompt={prompt} imagePrompt={imagePrompt} generations={generations} cost={cost} timeSpent={timeSpent} setGenerations={setGenerations} setCost={setCost} setTimeSpent={setTimeSpent} mode={mode} dataFields={dataFields} generatedObjects={generatedObjects} saveGeneratedObjects={saveGeneratedObjects} handleDelete={handleDelete} addCosts={addCosts} addGenerations={addGenerations} addTimeSpent={addTimeSpent} />
 
         </div>
@@ -278,39 +305,49 @@ export default function Home() {
 
           <h1 className="text-base mt-5">Enter your credentials</h1>
           <label className="input input-bordered flex items-center gap-2 mt-2">
-            <p className='text-xs'>Weaviate URL</p>
-            <input type="password" className="grow" value={weaviateURL} onChange={(e) => { setWeaviateURL(e.target.value) }} />
+            <div className="flex gap-2 items-center">
+              <IoServer />
+              <p className='text-xs'>Weaviate URL:</p>
+            </div>
+            <input type="text" className="grow text-xs" value={weaviateURL} onChange={(e) => { setWeaviateURL(e.target.value) }} />
           </label>
           <label className="input input-bordered flex items-center gap-2 mt-2">
-            <p className='text-xs'>Weaviate Key</p>
-            <input type="password" className="grow" value={weaviateKey} onChange={(e) => { setWeaviateKey(e.target.value) }} />
+            <div className="flex gap-2 items-center">
+              <FaKey />
+              <p className='text-xs'>Weaviate Key:</p>
+            </div>
+            <input type="password" className="grow text-xs" value={weaviateKey} onChange={(e) => { setWeaviateKey(e.target.value) }} />
           </label>
 
+          {weaviateStatus === "connected" && (
+            <div className='bg-green-300 p-2 mt-2 text-xs rounded-lg justify-center items-center flex font-bold gap-2'>
+              <FaHeart />
+              <p>Connected to Weaviate</p>
+            </div>
+          )}
+
+          {weaviateStatus === "not connected" && weaviateError === "" && (
+            <div className='bg-gray-300 p-2 mt-2 text-xs rounded-lg justify-center items-center flex font-bold gap-2'>
+              <IoCloudOfflineSharp />
+              <p>Not connected to Weaviate</p>
+            </div>
+          )}
+
+          {weaviateStatus === "not connected" && weaviateError != "" && (
+            <div className='bg-red-300 p-2 mt-2 text-xs rounded-lg items-center flex gap-2'>
+              <p>{weaviateError}</p>
+            </div>
+          )}
 
           <div className='flex items-center justify-end gap-3 mt-2'>
             <p className="text-xs text-light">Remember credentials in browser</p>
             <input type="checkbox" className="checkbox checkbox-sm" checked={saveWeaviateCredentials} onChange={(e) => { setSaveWeaviateCredentials(e.target.checked) }} />
           </div>
 
-          <div className=' flex gap-2 justify-end items-center mt-2'>
-            <button type='button' onClick={handleConnectWeaviate} className="btn bg-green-400 hover:bg-green-300 mr-2">Connect</button>
-            <button type='button' className="btn bg-pink-300 hover:bg-pink-200 mr-2">Clear</button>
-          </div>
-
-          <label className="form-control w-full mt-2">
-            <div className="label">
-              <span className="label-text">Select a collection</span>
-            </div>
-            <select disabled={weaviateStatus === "not connected"} className="select select-bordered" defaultValue={selectedCollection}>
-              {collection.length > 0 && (<option>Create new</option>)}
-              {collection.map((className, index) => (
-                <option>{className}</option>
-              ))}
-            </select>
-          </label>
-
           <div className="modal-action">
             <form method="dialog">
+              <button type='button' onClick={() => { handleConnectWeaviate(weaviateURL, weaviateKey, selectedAPIKey) }} className="btn bg-green-400 hover:bg-green-300 mr-2">Connect</button>
+              <button type='button' onClick={handleClearWeaviate} className="btn bg-pink-300 hover:bg-pink-200 mr-2">Clear</button>
               <button className="btn">Close</button>
             </form>
           </div>
