@@ -15,9 +15,9 @@ import { FaHeart } from "react-icons/fa";
 import { IoCloudOfflineSharp } from "react-icons/io5";
 import { MdError } from "react-icons/md";
 
-import { get_API_Status, connect_weaviate } from './actions'
+import { get_API_Status, connect_weaviate, get_weaviate_data } from './actions'
 
-import { DataField, initial_templates, Template, GeneratedObject } from './components/types'
+import { DataField, initial_templates, Template, GeneratedObject, FlexibleDictionary } from './components/types'
 import { exportAllToJson, importAllFromJson, exportJson } from './components/data_actions'
 
 export default function Home() {
@@ -31,7 +31,7 @@ export default function Home() {
 
   const [generatedObjects, setGeneratedObjects] = useState<GeneratedObject[]>([]);
 
-  const [mode, setMode] = useState<"Generation" | "Inspect">("Generation");
+  const [mode, setMode] = useState<"Generation" | "Inspect" | "Weaviate">("Generation");
 
   const [APIKey, setAPIKey] = useState("")
   const [selectedAPIKey, setSelectedAPIKey] = useState("")
@@ -44,6 +44,11 @@ export default function Home() {
   const [weaviateStatus, setWeaviateStatus] = useState<"not connected" | "connecting" | "connected">("not connected")
   const [weaviateError, setWeaviateError] = useState("")
   const [weaviateCollectionName, setWeaviateCollectionName] = useState("")
+
+  const [fetchingWeaviateData, setFetchingWeaviateData] = useState(false)
+  const [weaviateData, setWeaviateData] = useState<FlexibleDictionary[]>([])
+  const [weaviatePage, setWeaviatePage] = useState(0)
+  const [weaviateDataCount, setWeaviateDataCount] = useState(0)
 
   const [cost, setCost] = useState(0)
   const [generations, setGenerations] = useState(0)
@@ -218,6 +223,28 @@ export default function Home() {
     localStorage.removeItem('Generator9000_APIKEY')
   }
 
+  const retrieveWeaviateData = async () => {
+
+    if (weaviateCollectionName) {
+
+      setFetchingWeaviateData(true)
+      setWeaviateData([])
+      setWeaviateDataCount(0)
+
+      const response: any = await get_weaviate_data(weaviateURL, weaviateKey, selectedAPIKey, weaviateCollectionName, dataFields, 1)
+
+      if (response.data) {
+        setWeaviateData(response.data)
+        setWeaviateDataCount(response.count)
+        setFetchingWeaviateData(false)
+      }
+
+    }
+
+    setFetchingWeaviateData(false)
+
+  }
+
   return (
     <main className="p-8">
 
@@ -231,7 +258,7 @@ export default function Home() {
         </div>
         <div className='w-2/3'>
 
-          <GenerationMenuComponent generateData={generateData} selectedImageField={selectedImageField}
+          <GenerationMenuComponent fetchingWeaviateData={fetchingWeaviateData} weaviateDataCount={weaviateDataCount} weaviatePage={weaviatePage} setWeaviatePage={setWeaviatePage} weaviateCollectionName={weaviateCollectionName} weaviateData={weaviateData} retrieveWeaviateData={retrieveWeaviateData} generateData={generateData} selectedImageField={selectedImageField}
             generateImage={generateImage} APIEnvKeyAvailable={APIKeyEnvAvailable} APISetKey={selectedAPIKey} prompt={prompt} imagePrompt={imagePrompt} generations={generations} cost={cost} timeSpent={timeSpent} setGenerations={setGenerations} setCost={setCost} setTimeSpent={setTimeSpent} mode={mode} dataFields={dataFields} generatedObjects={generatedObjects} saveGeneratedObjects={saveGeneratedObjects} handleDelete={handleDelete} addCosts={addCosts} addGenerations={addGenerations} addTimeSpent={addTimeSpent} />
 
         </div>

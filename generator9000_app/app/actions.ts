@@ -41,6 +41,55 @@ export async function connect_weaviate(_url: string, _key: string, openai_key: s
     }
 }
 
+function paginateArray<T>(array: T[], pageNumber: number, pageSize: number): T[] {
+    // Calculate the starting index of the items to be returned
+    const startIndex = (pageNumber - 1) * pageSize;
+    // Use slice to extract a portion of the array starting from startIndex
+    // and ending at startIndex + pageSize, without including the end element itself
+    return array.slice(startIndex, startIndex + pageSize);
+}
+
+export async function get_weaviate_data(_url: string, _key: string, openai_key: string, collectionName: string, dataFields: DataField[], page: number) {
+    try {
+
+        const offset = 30 * page
+        const fields = dataFields.map(field => field.name).join(' ');
+
+        console.log("QUERY TIME with " + offset)
+
+        const client: WeaviateClient = weaviate.client({
+            scheme: 'https',
+            host: _url,
+            apiKey: new ApiKey(_key),
+            headers: { 'X-OpenAI-Api-Key': openai_key },
+        });
+
+        const query = await client.graphql.get()
+            .withClassName(collectionName)
+            .withFields(fields)
+            .withOffset(offset)
+            .withLimit(30)
+            .do()
+
+        if (query) {
+
+            const data = query["data"]["Get"][collectionName]
+
+            if (data) {
+                return { data: data, "error": "", count: data.length };
+            } else {
+                return { data: [], "error": "No data", count: 0 };
+            }
+        } else {
+            return { data: [], "error": "No data", count: 0 };
+        }
+
+    } catch (e) {
+        console.log("Error fetching: " + e);
+        return { "data": [], "error": "Error fetching: " + e, count: 0 };
+    }
+}
+
 async function createTemplate(client: WeaviateClient, className: any): Promise<Template> {
     const classDefinition = await client.schema.classGetter().withClassName(className).do();
 

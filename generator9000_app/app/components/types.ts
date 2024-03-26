@@ -113,6 +113,10 @@ const colors = [
     "Turquoise"
 ];
 
+export type FlexibleDictionary = {
+    [key: string]: any;
+};
+
 export interface DataField {
     id: string; // Unique identifier for each data field
     name: string;

@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 
 import SettingsModalComponent from './settings_modal';
-import { DataField, GeneratedObject } from './types'
+import { DataField, GeneratedObject, FlexibleDictionary } from './types'
 
 import { BiObjectsVerticalBottom } from "react-icons/bi";
 import { MdAccessTime } from "react-icons/md";
@@ -14,6 +14,7 @@ import { ImCheckmark } from "react-icons/im";
 
 import GenerationPodComponent from './generation_pod'
 import InspectModeComponent from './inspect';
+import InspectWeaviateComponent from './inspect_weaviate';
 
 import ExportModalComponent from './export_modal';
 
@@ -32,8 +33,15 @@ interface GenerationMenuComponentProps {
     generateData: boolean;
     generateImage: boolean;
     selectedImageField: string;
+    weaviateData: FlexibleDictionary[];
+    weaviateCollectionName: string;
 
+    fetchingWeaviateData: boolean;
+    weaviateDataCount: number;
+    weaviatePage: number;
+    setWeaviatePage: (_n: number) => void;
 
+    retrieveWeaviateData: () => void;
     setGenerations: (_n: number) => void;
     setCost: (_n: number) => void;
     setTimeSpent: (_n: number) => void;
@@ -44,7 +52,7 @@ interface GenerationMenuComponentProps {
     addTimeSpent: (_n: number) => void;
 }
 
-const GenerationMenuComponent: React.FC<GenerationMenuComponentProps> = ({ generateData, selectedImageField, generateImage, addGenerations, addCosts, addTimeSpent, APIEnvKeyAvailable, APISetKey, generations, cost, timeSpent, mode, imagePrompt, prompt, dataFields, generatedObjects, saveGeneratedObjects, handleDelete }) => {
+const GenerationMenuComponent: React.FC<GenerationMenuComponentProps> = ({ fetchingWeaviateData, weaviateDataCount, weaviatePage, setWeaviatePage, weaviateCollectionName, weaviateData, generateData, selectedImageField, generateImage, retrieveWeaviateData, addGenerations, addCosts, addTimeSpent, APIEnvKeyAvailable, APISetKey, generations, cost, timeSpent, mode, imagePrompt, prompt, dataFields, generatedObjects, saveGeneratedObjects, handleDelete }) => {
 
     const [imageSize, setImageSize] = useState("1024x1024");
     const [imageStyle, setImageStyle] = useState("vivid")
@@ -70,7 +78,7 @@ const GenerationMenuComponent: React.FC<GenerationMenuComponentProps> = ({ gener
         <div>
             <div className=' flex justify-start items-center mb-2 gap-4 ml-4'>
 
-                <div onClick={() => { setShouldSave(true) }} className='flex items-center justify-center bg-green-500 hover:bg-green-400 shadow-lg p-4 h-24 w-24 rounded-lg duration-300 ease-in-out transform hover:scale-105' >
+                <div onClick={() => { if (mode === "Generation") { setShouldSave(true) } }} className='flex items-center justify-center bg-green-500 hover:bg-green-400 shadow-lg p-4 h-24 w-24 rounded-lg duration-300 ease-in-out transform hover:scale-105' >
                     <div className="tooltip" data-tip="Save All">
                         <button className='btn bg-transparent hover:bg-transparent btn-ghost'>
                             <ImCheckmark />
@@ -78,7 +86,7 @@ const GenerationMenuComponent: React.FC<GenerationMenuComponentProps> = ({ gener
                     </div>
                 </div>
 
-                <div onClick={() => { setShouldGenerate(true) }} className='flex items-center justify-center bg-blue-500 hover:bg-blue-400 shadow-lg p-4 h-24 w-24 rounded-lg duration-300 ease-in-out transform hover:scale-105' >
+                <div onClick={() => { if (mode === "Generation") { setShouldGenerate(true) } }} className='flex items-center justify-center bg-blue-500 hover:bg-blue-400 shadow-lg p-4 h-24 w-24 rounded-lg duration-300 ease-in-out transform hover:scale-105' >
                     <div className="tooltip" data-tip="Generate All">
                         <button className='btn bg-transparent hover:bg-transparent btn-ghost'>
                             <FaRedoAlt />
@@ -118,7 +126,7 @@ const GenerationMenuComponent: React.FC<GenerationMenuComponentProps> = ({ gener
             </div>
 
             <div className=''>
-                {mode === "Generation" ? (
+                {mode === "Generation" && (
                     <div className='flex-grow flex justify-between items-center gap-5 p-4'>
                         {Array.from({ length: generationPodNumber }, (_, index) => (
                             <GenerationPodComponent
@@ -148,8 +156,14 @@ const GenerationMenuComponent: React.FC<GenerationMenuComponentProps> = ({ gener
                             />
                         ))}
                     </div>
-                ) : (
+                )}
+
+                {mode === "Inspect" && (
                     <InspectModeComponent generatedObjects={generatedObjects} onDelete={handleDelete} selectedImageField={selectedImageField} />
+                )}
+
+                {mode === "Weaviate" && (
+                    <InspectWeaviateComponent fetchingWeaviateData={fetchingWeaviateData} weaviateDataCount={weaviateDataCount} weaviatePage={weaviatePage} setWeaviatePage={setWeaviatePage} weaviateCollectionName={weaviateCollectionName} selectedImageField={selectedImageField} retrieveWeaviateData={retrieveWeaviateData} weaviateData={weaviateData} />
                 )}
             </div>
 

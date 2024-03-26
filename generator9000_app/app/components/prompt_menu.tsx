@@ -177,6 +177,9 @@ const PromptMenuComponent: React.FC<PromptMenuComponentProps> = ({ prompt, selec
                         disabled={dataFields.length == 0}
                         onChange={(e) => { setSelectedImageField(e.target.value); handleImageFieldChange(selectedTemplate, e.target.value) }}
                         className="select select-sm select-bordered w-2/3">
+                        <option key={"NoneImage"} value={"None"}>
+                            None
+                        </option>
                         {
                             dataFields.filter(field => field.name.trim() !== "").map((field, index) => (
                                 <option key={index} value={field.name}>

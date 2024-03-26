@@ -12,7 +12,7 @@ interface NavbarComponentProps {
     importAllFromJson: (event: React.ChangeEvent<HTMLInputElement>) => void;
     exportAllToJson: () => void;
     handleExportJSON: () => void;
-    setMode: (_mode: "Generation" | "Inspect") => void;
+    setMode: (_mode: "Generation" | "Inspect" | "Weaviate") => void;
     mode: string;
     generatedObjects: GeneratedObject[];
     apiKeyAvailable: boolean;
@@ -143,7 +143,7 @@ const NavbarComponent: React.FC<NavbarComponentProps> = ({ weaviateStatus, gener
                 </button>
 
                 {weaviateStatus === "connected" && (
-                    <button className=" bg-green-300 p-4 text-xs rounded-lg shadow-lg font-bold duration-300 ease-in-out transform hover:scale-105">
+                    <button className=" bg-green-300 p-4 text-xs rounded-lg shadow-lg font-bold duration-300 ease-in-out transform hover:scale-105" onClick={() => setMode("Weaviate")}>
                         Weaviate Objects
                     </button>
                 )}
