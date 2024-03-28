@@ -10,6 +10,7 @@ import OpenAI from "openai";
 
 import fetch from 'node-fetch';
 import { get_encoding } from "tiktoken";
+import { cookies } from 'next/headers'
 
 
 const enc = get_encoding("gpt2");
@@ -24,13 +25,15 @@ async function downloadImageAsBase64(imageUrl: string) {
     return `data:${response.headers.get('content-type')};base64,${buffer.toString('base64')}`;
 }
 
-export async function generateDataBasedPrompt(user_prompt: string, dataFields: DataField[], temperature: number, generationPod: string, set_env_key: string) {
+export async function generateDataBasedPrompt(user_prompt: string, dataFields: DataField[], temperature: number, generationPod: string) {
 
-    async function generateDataBasedPromptPromise(user_prompt: string, dataFields: DataField[], temperature: number, generationPod: string, set_env_key: string) {
-
+    async function generateDataBasedPromptPromise(user_prompt: string, dataFields: DataField[], temperature: number, generationPod: string) {
         try {
 
-            const openai: OpenAI = process.env.OPENAI_API_KEY ? new OpenAI() : new OpenAI({ apiKey: set_env_key });
+            const cookieStore = cookies()
+            const api_cookie = cookieStore.get('Generator9000_APIKEY')?.value || process.env.OPENAI_API_KEY
+
+            const openai: OpenAI = process.env.OPENAI_API_KEY ? new OpenAI() : new OpenAI({ apiKey: api_cookie });
 
             const fieldsDescription = dataFields.map(field => {
                 let fieldDesc = `${field.name} (${field.type})`;
@@ -69,21 +72,24 @@ export async function generateDataBasedPrompt(user_prompt: string, dataFields: D
     }
 
     return {
-        promise: generateDataBasedPromptPromise(user_prompt, dataFields, temperature, generationPod, set_env_key)
+        promise: generateDataBasedPromptPromise(user_prompt, dataFields, temperature, generationPod)
     }
 
 
 
 }
 
-export async function generateImageBasedDescription(image_description: string, prompt: string, size: "1024x1024" | "1792x1024" | "1024x1792", style: "vivid" | "natural", set_env_key: string): Promise<any> {
+export async function generateImageBasedDescription(image_description: string, prompt: string, size: "1024x1024" | "1792x1024" | "1024x1792", style: "vivid" | "natural"): Promise<any> {
 
-    async function generateImageBasedDescriptionPromise(image_description: string, prompt: string, size: "1024x1024" | "1792x1024" | "1024x1792", style: "vivid" | "natural", set_env_key: string) {
+    async function generateImageBasedDescriptionPromise(image_description: string, prompt: string, size: "1024x1024" | "1792x1024" | "1024x1792", style: "vivid" | "natural") {
         const _prompt = prompt + " Based on this data and metainformation: " + image_description
 
         try {
 
-            const openai: OpenAI = process.env.OPENAI_API_KEY ? new OpenAI() : new OpenAI({ apiKey: set_env_key });
+            const cookieStore = cookies()
+            const api_cookie = cookieStore.get('Generator9000_APIKEY')?.value || process.env.OPENAI_API_KEY
+
+            const openai: OpenAI = process.env.OPENAI_API_KEY ? new OpenAI() : new OpenAI({ apiKey: api_cookie });
 
             const response = await openai.images.generate({
                 model: "dall-e-3",
@@ -111,12 +117,12 @@ export async function generateImageBasedDescription(image_description: string, p
             }
 
         } catch (error) {
-            console.log("Error when generating image " + error)
+            console.error("Error when generating image " + error)
             return { "image": "", "url": "", "error": error + "" }
         }
     }
 
-    return { promise: generateImageBasedDescriptionPromise(image_description, prompt, size, style, set_env_key) }
+    return { promise: generateImageBasedDescriptionPromise(image_description, prompt, size, style) }
 
 
 }

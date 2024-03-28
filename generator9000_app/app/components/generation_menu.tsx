@@ -29,17 +29,19 @@ interface GenerationMenuComponentProps {
     dataFields: DataField[];
     generatedObjects: GeneratedObject[];
     APIEnvKeyAvailable: boolean;
-    APISetKey: string;
     generateData: boolean;
     generateImage: boolean;
     selectedImageField: string;
     weaviateData: FlexibleDictionary[];
     weaviateCollectionName: string;
+    handleConnectWeaviate: (_url: string, _key: string, collectionName?: string) => void;
+    selectedTemplate: string;
 
     fetchingWeaviateData: boolean;
     weaviateDataCount: number;
     weaviatePage: number;
     setWeaviatePage: (_n: number) => void;
+    weaviateStatus: string;
 
     retrieveWeaviateData: () => void;
     setGenerations: (_n: number) => void;
@@ -52,7 +54,7 @@ interface GenerationMenuComponentProps {
     addTimeSpent: (_n: number) => void;
 }
 
-const GenerationMenuComponent: React.FC<GenerationMenuComponentProps> = ({ fetchingWeaviateData, weaviateDataCount, weaviatePage, setWeaviatePage, weaviateCollectionName, weaviateData, generateData, selectedImageField, generateImage, retrieveWeaviateData, addGenerations, addCosts, addTimeSpent, APIEnvKeyAvailable, APISetKey, generations, cost, timeSpent, mode, imagePrompt, prompt, dataFields, generatedObjects, saveGeneratedObjects, handleDelete }) => {
+const GenerationMenuComponent: React.FC<GenerationMenuComponentProps> = ({ selectedTemplate, weaviateStatus, handleConnectWeaviate, fetchingWeaviateData, weaviateDataCount, weaviatePage, setWeaviatePage, weaviateCollectionName, weaviateData, generateData, selectedImageField, generateImage, retrieveWeaviateData, addGenerations, addCosts, addTimeSpent, APIEnvKeyAvailable, generations, cost, timeSpent, mode, imagePrompt, prompt, dataFields, generatedObjects, saveGeneratedObjects, handleDelete }) => {
 
     const [imageSize, setImageSize] = useState("1024x1024");
     const [imageStyle, setImageStyle] = useState("vivid")
@@ -95,28 +97,19 @@ const GenerationMenuComponent: React.FC<GenerationMenuComponentProps> = ({ fetch
                 </div>
 
                 <div className="stats shadow">
-
                     <div className="stat">
-                        <div className="stat-figure text-zinc-800">
-                            <BiObjectsVerticalBottom size={25} />
-                        </div>
                         <div className="stat-title text-sm">Total Generations</div>
                         <div className="stat-value text-3xl">{generations}x</div>
                         <div className="stat-desc">Generations this session</div>
                     </div>
 
                     <div className="stat">
-                        <div className="stat-figure text-zinc-800">
-                            <TbPigMoney size={25} />                </div>
                         <div className="stat-title text-sm">Estimated Cost</div>
                         <div className="stat-value text-3xl">{Number(cost.toFixed(2))}$</div>
                         <div className="stat-desc">Money wasted this session</div>
                     </div>
 
                     <div className="stat">
-                        <div className="stat-figure text-zinc-800">
-                            <MdAccessTime size={25} />
-                        </div>
                         <div className="stat-title text-sm">Summed Generation Time</div>
                         <div className="stat-value text-3xl">{Number(timeSpent.toFixed(2))}min</div>
                         <div className="stat-desc">Real time estimation ({Number((timeSpent / generationPodNumber).toFixed(2))}min)</div>
@@ -130,6 +123,10 @@ const GenerationMenuComponent: React.FC<GenerationMenuComponentProps> = ({ fetch
                     <div className='flex-grow flex justify-between items-center gap-5 p-4'>
                         {Array.from({ length: generationPodNumber }, (_, index) => (
                             <GenerationPodComponent
+                                selectedTemplate={selectedTemplate}
+                                handleConnectWeaviate={handleConnectWeaviate}
+                                weaviateCollectionName={weaviateCollectionName}
+                                weaviateStatus={weaviateStatus}
                                 key={`POD${index + 1}`}
                                 id={`POD${index + 1}`}
                                 addGenerations={addGenerations}
@@ -150,7 +147,6 @@ const GenerationMenuComponent: React.FC<GenerationMenuComponentProps> = ({ fetch
                                 includeImageBase64={includeImageBase64}
                                 selectedBucket={selectedBucket}
                                 APIEnvKeyAvailable={APIEnvKeyAvailable}
-                                APISetKey={APISetKey}
                                 generateData={generateData}
                                 generateImage={generateImage}
                             />

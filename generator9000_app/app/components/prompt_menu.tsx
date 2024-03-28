@@ -33,40 +33,23 @@ interface PromptMenuComponentProps {
 
 const PromptMenuComponent: React.FC<PromptMenuComponentProps> = ({ prompt, selectedImageField, imagePrompt, selectedTemplate, templates, dataFields, weaviateStatus, weaviateCollectionName, setPrompt, setImagePrompt, setDataFields, setSelectedTemplate, setGenerateOptions, setWeaviateCollectionName, setSelectedImageField }) => {
 
-    const router = useRouter();
-    const searchParams = useSearchParams()
-
     const [generateData, setGenerateData] = useState(true)
     const [generateImage, setGenerateImage] = useState(true)
 
     useEffect(() => {
 
-        const _template = searchParams.get('template')
-
-        if (_template) {
-            setSelectedTemplate(_template)
-            const template = templates.find(t => t.name === _template);
-            if (template) {
-                setPrompt(template.prompt);
-                setDataFields(template.datafields);
-                setImagePrompt(template.imagePrompt)
-            }
-        }
-        else {
-            const newSearchParams = new URLSearchParams(searchParams.toString());
-            newSearchParams.set('template', "Empty");
-            router.push(`/?${newSearchParams}`, { scroll: false });
+        if (selectedImageField === "None") {
+            setGenerateImage(false)
+        } else {
+            setGenerateImage(true)
         }
 
-    }, [searchParams]);
+    }, [selectedImageField]);
 
 
     const handleTemplateChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const name = e.target.value;
         setSelectedTemplate(name); // Update the selected template state
-        const newSearchParams = new URLSearchParams(searchParams.toString());
-        newSearchParams.set('template', name);
-        router.push(`/?${newSearchParams}`, { scroll: false });
         const template = templates.find(t => t.name === name);
 
         if (template) {
@@ -82,6 +65,8 @@ const PromptMenuComponent: React.FC<PromptMenuComponentProps> = ({ prompt, selec
 
             if (template.imageField) {
                 setSelectedImageField(template.imageField)
+            } else {
+                setSelectedImageField("None")
             }
 
         }
@@ -128,7 +113,7 @@ const PromptMenuComponent: React.FC<PromptMenuComponentProps> = ({ prompt, selec
             <div className='p-2'>
                 <div className='flex justify-between items-center mb-4'>
                     <button className="btn btn-xs border-none shadow-none bg-transparent text-opacity-25 hover:text-opacity-100 hover:bg-transparent" onClick={openDebugModal}><MdOutgoingMail size={20} /></button>
-                    <p className=''>Prompt</p>
+                    {weaviateStatus === "connected" ? (<p className=''>Collections</p>) : (<p className=''>Prompt</p>)}
                     <select value={selectedTemplate}
                         onChange={handleTemplateChange}
                         className="select select-sm select-bordered w-full max-w-xs">
@@ -162,13 +147,9 @@ const PromptMenuComponent: React.FC<PromptMenuComponentProps> = ({ prompt, selec
                 <p className='text-xs font-light mb-1 mt-4'>Image Prompt</p>
                 <label className="label cursor-pointer">
                     <p className="label-text text-xs opacity-50">Enable Image Generation</p>
-                    <input type="checkbox" checked={generateImage} onChange={(e) => { setGenerateImage(e.target.checked); setGenerateOptions(generateData, e.target.checked) }} className="checkbox checkbox-sm" />
+                    <input type="checkbox" disabled={selectedImageField === "None"} checked={generateImage} onChange={(e) => { setGenerateImage(e.target.checked); setGenerateOptions(generateData, e.target.checked) }} className="checkbox checkbox-sm" />
                 </label>
                 <textarea disabled={!generateImage} className="textarea textarea-bordered w-full" placeholder="Enter your image prompt here" value={imagePrompt} onChange={(e) => setImagePrompt(e.target.value)}></textarea>
-
-            </div>
-            <div className='p-2'>
-                <p className=''>Data Fields</p>
 
                 <div className='flex justify-center items-center mt-2'>
                     <p className='text-sm w-1/3'>Select Image Field</p>
@@ -191,6 +172,9 @@ const PromptMenuComponent: React.FC<PromptMenuComponentProps> = ({ prompt, selec
                 </div>
 
 
+            </div>
+            <div className='p-2'>
+                <p className=''>Data Fields</p>
                 {dataFields.length <= 0 && (
                     <div className='my-2 text-xs font-light flex justify-start items-center opacity-50'>
                         <p>No data fields</p>
@@ -208,7 +192,7 @@ const PromptMenuComponent: React.FC<PromptMenuComponentProps> = ({ prompt, selec
                     />
                 ))}
 
-                {selectedTemplate != weaviateCollectionName && weaviateStatus === "connected" && (
+                {((selectedTemplate != weaviateCollectionName && weaviateStatus === "connected") || (weaviateStatus != "connected")) && (
                     <div className='flex justify-center items-center mt-3'>
                         <button className='p-4 flex justify-center items-center gap-2 rounded-lg shadow-lg bg-green-400 text-xs duration-300 ease-in-out transform hover:scale-105' onClick={addDataField}>
                             <IoMdAddCircle />

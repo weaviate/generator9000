@@ -29,7 +29,7 @@ const DataFieldComponent: React.FC<DataFieldComponentProps> = ({ dataField, _dis
                 <input
                     type="text"
                     value={dataField.name}
-                    onChange={(e) => updateDataField({ name: e.target.value })}
+                    onChange={(e) => updateDataField({ name: e.target.value.replace(/\s+/g, '_') })}
                     placeholder="Field name"
                     className="input input-bordered w-full text-sm"
                     disabled={_disabled || imageField}

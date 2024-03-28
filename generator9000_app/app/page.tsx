@@ -15,7 +15,7 @@ import { FaHeart } from "react-icons/fa";
 import { IoCloudOfflineSharp } from "react-icons/io5";
 import { MdError } from "react-icons/md";
 
-import { get_API_Status, connect_weaviate, get_weaviate_data } from './actions'
+import { get_API_Status, connect_weaviate, get_weaviate_data, import_weaviate_data, set_api_key, remove_api_key, clear_weaviate_cookies } from './actions'
 
 import { DataField, initial_templates, Template, GeneratedObject, FlexibleDictionary } from './components/types'
 import { exportAllToJson, importAllFromJson, exportJson } from './components/data_actions'
@@ -26,7 +26,7 @@ export default function Home() {
   const [prompt, setPrompt] = useState("")
   const [imagePrompt, setImagePrompt] = useState("")
   const [selectedTemplate, setSelectedTemplate] = useState("Empty"); // Track the selected template
-  const [selectedImageField, setSelectedImageField] = useState("")
+  const [selectedImageField, setSelectedImageField] = useState("None")
   const [templates, setTemplates] = useState<Template[]>(initial_templates);
 
   const [generatedObjects, setGeneratedObjects] = useState<GeneratedObject[]>([]);
@@ -34,13 +34,10 @@ export default function Home() {
   const [mode, setMode] = useState<"Generation" | "Inspect" | "Weaviate">("Generation");
 
   const [APIKey, setAPIKey] = useState("")
-  const [selectedAPIKey, setSelectedAPIKey] = useState("")
   const [APIKeyEnvAvailable, setAPIKeyEnvAvailable] = useState(false)
-  const [saveInBrowser, setSaveInBrowser] = useState(true)
 
   const [weaviateURL, setWeaviateURL] = useState("")
   const [weaviateKey, setWeaviateKey] = useState("")
-  const [saveWeaviateCredentials, setSaveWeaviateCredentials] = useState(true)
   const [weaviateStatus, setWeaviateStatus] = useState<"not connected" | "connecting" | "connected">("not connected")
   const [weaviateError, setWeaviateError] = useState("")
   const [weaviateCollectionName, setWeaviateCollectionName] = useState("")
@@ -77,28 +74,7 @@ export default function Home() {
   useEffect(() => {
 
     getAPIStatus()
-    const APIKey = localStorage.getItem('Generator9000_APIKEY');
-    if (APIKey) {
-      setSelectedAPIKey(APIKey)
-      setAPIKey(APIKey)
-    }
-
-    const weaviate_key = localStorage.getItem('Generator9000_Weaviate_KEY');
-
-    if (weaviate_key) {
-      setWeaviateKey(weaviate_key)
-    }
-
-    const weaviate_url = localStorage.getItem('Generator9000_Weaviate_URL');
-
-    if (weaviate_url) {
-      setWeaviateURL(weaviate_url)
-    }
-
-    if (weaviate_url && weaviate_key && APIKey) {
-      handleConnectWeaviate(weaviate_url, weaviate_key, APIKey)
-    }
-
+    handleConnectWeaviate("", "")
 
   }, []);
 
@@ -142,52 +118,60 @@ export default function Home() {
     exportAllToJson(prompt, imagePrompt, cost, generations, timeSpent, dataFields, generatedObjects)
   }
 
-  const startUpConnectWeaviate = async () => {
+  const handleConnectWeaviate = async (_url: string, _key: string, _collectionName?: string) => {
 
-  }
-
-  const handleConnectWeaviate = async (_url: string, _key: string, _api: string) => {
-
-    console.log("START")
-
-    if (_key && _url && _api) {
-      setWeaviateStatus("connecting")
-      const collections_payload: any = await connect_weaviate(_url, _key, _api)
-      if (collections_payload) {
-
-        if (collections_payload.error != "") {
-          setWeaviateStatus("not connected")
-          setWeaviateError(collections_payload.error)
-          setTemplates(initial_templates)
-        } else {
-
-          if (saveWeaviateCredentials) {
-            localStorage.setItem('Generator9000_Weaviate_URL', _url);
-            localStorage.setItem('Generator9000_Weaviate_KEY', _key);
-          }
-          setTemplates(collections_payload.templates)
-          setSelectedTemplate(collections_payload.templates[0])
-          setWeaviateStatus("connected")
-          setWeaviateError("")
-        }
-      } else {
+    setWeaviateStatus("connecting")
+    const collections_payload: any = await connect_weaviate(_url, _key)
+    if (collections_payload) {
+      if (collections_payload.error != "") {
+        setWeaviateStatus("not connected")
+        setWeaviateError(collections_payload.error)
+        setTemplates(initial_templates)
+      } else if (collections_payload.connected === false) {
+        setTemplates(initial_templates)
         setWeaviateStatus("not connected")
         setWeaviateError("")
+      } else {
+        setTemplates(collections_payload.templates)
+        console.log(_collectionName)
+        if (_collectionName) {
+          setWeaviateCollectionName(_collectionName)
+          setSelectedTemplate(_collectionName)
+        } else {
+          setSelectedTemplate(collections_payload.templates[0])
+        }
+        setWeaviateStatus("connected")
+        setWeaviateError("")
+        retrieveWeaviateData()
       }
     } else {
+      setTemplates(initial_templates)
       setWeaviateStatus("not connected")
       setWeaviateError("")
     }
+  }
 
+  const refreshTemplates = async (_url: string, _key: string, _collectionName?: string) => {
+    const collections_payload: any = await connect_weaviate(_url, _key)
+    if (collections_payload) {
+      if (collections_payload.error === "") {
+        setTemplates(collections_payload.templates)
+        if (_collectionName) {
+          setWeaviateCollectionName(_collectionName)
+          setSelectedTemplate(_collectionName)
+        }
+        retrieveWeaviateData()
+      }
+    }
   }
 
   const handleClearWeaviate = () => {
-    localStorage.removeItem('Generator9000_Weaviate_URL');
-    localStorage.removeItem('Generator9000_Weaviate_KEY');
+    clear_weaviate_cookies()
     setWeaviateKey("")
     setWeaviateURL("")
     setWeaviateStatus("not connected")
     setWeaviateError("")
+    setTemplates(initial_templates)
   }
 
   const handleExportJSON = () => {
@@ -210,28 +194,28 @@ export default function Home() {
   }
 
   const handleAPIKeySet = () => {
-    setSelectedAPIKey(APIKey)
-
-    if (saveInBrowser) {
-      localStorage.setItem('Generator9000_APIKEY', APIKey);
-    }
+    set_api_key(APIKey)
+    setAPIKeyEnvAvailable(true)
   }
 
   const clearAPIKey = () => {
-    setSelectedAPIKey("")
     setAPIKey("")
-    localStorage.removeItem('Generator9000_APIKEY')
+    remove_api_key()
+    setAPIKeyEnvAvailable(false)
   }
 
   const retrieveWeaviateData = async () => {
 
-    if (weaviateCollectionName) {
+    setWeaviateData([])
+    setWeaviateDataCount(0)
+
+    if (weaviateCollectionName && selectedTemplate != "New Collection") {
 
       setFetchingWeaviateData(true)
       setWeaviateData([])
       setWeaviateDataCount(0)
 
-      const response: any = await get_weaviate_data(weaviateURL, weaviateKey, selectedAPIKey, weaviateCollectionName, dataFields, 1)
+      const response: any = await get_weaviate_data(weaviateCollectionName, dataFields, weaviatePage)
 
       if (response.data) {
         setWeaviateData(response.data)
@@ -245,10 +229,11 @@ export default function Home() {
 
   }
 
+
   return (
     <main className="p-8">
 
-      <NavbarComponent weaviateStatus={weaviateStatus} importAllFromJson={handleImportAllFromJSON} exportAllToJson={handleExportAllToJSON} mode={mode} setMode={setMode} generatedObjects={generatedObjects} handleExportJSON={handleExportJSON} apiKeyAvailable={APIKeyEnvAvailable || selectedAPIKey != ""} />
+      <NavbarComponent weaviateStatus={weaviateStatus} importAllFromJson={handleImportAllFromJSON} exportAllToJson={handleExportAllToJSON} mode={mode} setMode={setMode} generatedObjects={generatedObjects} handleExportJSON={handleExportJSON} apiKeyAvailable={APIKeyEnvAvailable} />
 
       <div className='flex justify-center mt-4'>
         <div className='w-1/3'>
@@ -258,8 +243,8 @@ export default function Home() {
         </div>
         <div className='w-2/3'>
 
-          <GenerationMenuComponent fetchingWeaviateData={fetchingWeaviateData} weaviateDataCount={weaviateDataCount} weaviatePage={weaviatePage} setWeaviatePage={setWeaviatePage} weaviateCollectionName={weaviateCollectionName} weaviateData={weaviateData} retrieveWeaviateData={retrieveWeaviateData} generateData={generateData} selectedImageField={selectedImageField}
-            generateImage={generateImage} APIEnvKeyAvailable={APIKeyEnvAvailable} APISetKey={selectedAPIKey} prompt={prompt} imagePrompt={imagePrompt} generations={generations} cost={cost} timeSpent={timeSpent} setGenerations={setGenerations} setCost={setCost} setTimeSpent={setTimeSpent} mode={mode} dataFields={dataFields} generatedObjects={generatedObjects} saveGeneratedObjects={saveGeneratedObjects} handleDelete={handleDelete} addCosts={addCosts} addGenerations={addGenerations} addTimeSpent={addTimeSpent} />
+          <GenerationMenuComponent selectedTemplate={selectedTemplate} handleConnectWeaviate={refreshTemplates} weaviateStatus={weaviateStatus} fetchingWeaviateData={fetchingWeaviateData} weaviateDataCount={weaviateDataCount} weaviatePage={weaviatePage} setWeaviatePage={setWeaviatePage} weaviateCollectionName={weaviateCollectionName} weaviateData={weaviateData} retrieveWeaviateData={retrieveWeaviateData} generateData={generateData} selectedImageField={selectedImageField}
+            generateImage={generateImage} APIEnvKeyAvailable={APIKeyEnvAvailable} prompt={prompt} imagePrompt={imagePrompt} generations={generations} cost={cost} timeSpent={timeSpent} setGenerations={setGenerations} setCost={setCost} setTimeSpent={setTimeSpent} mode={mode} dataFields={dataFields} generatedObjects={generatedObjects} saveGeneratedObjects={saveGeneratedObjects} handleDelete={handleDelete} addCosts={addCosts} addGenerations={addGenerations} addTimeSpent={addTimeSpent} />
 
         </div>
       </div>
@@ -292,10 +277,6 @@ export default function Home() {
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-4 h-4 opacity-70"><path fillRule="evenodd" d="M14 6a4 4 0 0 1-4.899 3.899l-1.955 1.955a.5.5 0 0 1-.353.146H5v1.5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1-.5-.5v-2.293a.5.5 0 0 1 .146-.353l3.955-3.955A4 4 0 1 1 14 6Zm-4-2a.75.75 0 0 0 0 1.5.5.5 0 0 1 .5.5.75.75 0 0 0 1.5 0 2 2 0 0 0-2-2Z" clipRule="evenodd" /></svg>
             <input type="password" className="grow" value={APIKey} onChange={(e) => { setAPIKey(e.target.value) }} />
           </label>
-          <label className="cursor-pointer label">
-            <span className="label-text text-xs text-light">Remember key in browser</span>
-            <input type="checkbox" className="checkbox checkbox-sm" checked={saveInBrowser} onChange={(e) => { setSaveInBrowser(e.target.checked) }} />
-          </label>
           <div className='flex justify-center items-center gap-3 bg-red-300 rounded-lg shadow-lg mt-2'>
             <IoMdAlert />
             <p className="py-4 text-xs">Generating data will produce costs on your OpenAI key. Use with caution!</p>
@@ -323,7 +304,7 @@ export default function Home() {
               <p className='text-sm font-light'>Connect to Weaviate to automatically ingest generated objects.</p>
               <p className='text-sm font-light mt-2'>Weaviate is an AI-native vector database used for many AI applications. You can create a free cluster on Weaviate Cloud Services (WCS) to try it out.</p>
               <p className='text-sm font-light mt-2'>
-                <a href="https://console.weaviate.cloud/dashboard" target="_blank" rel="noopener noreferrer">
+                <a className='font-bold text-blue-600' href="https://console.weaviate.cloud/dashboard" target="_blank" rel="noopener noreferrer">
                   https://console.weaviate.cloud/dashboard
                 </a>
               </p>
@@ -366,14 +347,9 @@ export default function Home() {
             </div>
           )}
 
-          <div className='flex items-center justify-end gap-3 mt-2'>
-            <p className="text-xs text-light">Remember credentials in browser</p>
-            <input type="checkbox" className="checkbox checkbox-sm" checked={saveWeaviateCredentials} onChange={(e) => { setSaveWeaviateCredentials(e.target.checked) }} />
-          </div>
-
           <div className="modal-action">
             <form method="dialog">
-              <button type='button' onClick={() => { handleConnectWeaviate(weaviateURL, weaviateKey, selectedAPIKey) }} className="btn bg-green-400 hover:bg-green-300 mr-2">Connect</button>
+              <button type='button' onClick={() => { handleConnectWeaviate(weaviateURL, weaviateKey) }} className="btn bg-green-400 hover:bg-green-300 mr-2">Connect</button>
               <button type='button' onClick={handleClearWeaviate} className="btn bg-pink-300 hover:bg-pink-200 mr-2">Clear</button>
               <button className="btn">Close</button>
             </form>

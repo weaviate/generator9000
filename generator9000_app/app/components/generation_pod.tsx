@@ -5,6 +5,7 @@ import { DataField, GeneratedObject } from './types'
 import { ImCheckmark } from "react-icons/im";
 import { FaRedoAlt } from "react-icons/fa";
 import { generateImageBasedDescription, generateDataBasedPrompt, uploadToAWS } from "./server_actions"
+import { import_weaviate_data } from '../actions'
 
 import { v4 as uuidv4 } from 'uuid';
 
@@ -19,16 +20,19 @@ interface GenerationPodComponentProps {
     generateData: boolean;
     generateImage: boolean;
     selectedImageField: string;
+    weaviateStatus: string;
+    handleConnectWeaviate: (_url: string, _key: string, collectionName?: string) => void;
+    selectedTemplate: string;
 
     onSaveObject: (generatedObject: GeneratedObject) => void;
     imageSize: string;
     imageStyle: string;
     temperature: number;
     shouldGenerate: boolean;
+    weaviateCollectionName: string;
     onGenerationComplete: () => void;
     shouldSave: boolean;
     APIEnvKeyAvailable: boolean;
-    APISetKey: string;
     onSaveComplete: () => void;
     addGenerations: (add_generations: number) => void;
     addCosts: (add_cost: number) => void;
@@ -36,7 +40,7 @@ interface GenerationPodComponentProps {
 
 }
 
-const GenerationPodComponent: React.FC<GenerationPodComponentProps> = ({ generateData, generateImage, selectedImageField, APIEnvKeyAvailable, APISetKey, includeImageBase64, selectedBucket, prompt, imagePrompt, shouldGenerate, shouldSave, dataFields, onSaveObject, onSaveComplete, id, imageSize, imageStyle, temperature, addGenerations, addCosts, addTime, onGenerationComplete }) => {
+const GenerationPodComponent: React.FC<GenerationPodComponentProps> = ({ selectedTemplate, handleConnectWeaviate, weaviateCollectionName, weaviateStatus, generateData, generateImage, selectedImageField, APIEnvKeyAvailable, includeImageBase64, selectedBucket, prompt, imagePrompt, shouldGenerate, shouldSave, dataFields, onSaveObject, onSaveComplete, id, imageSize, imageStyle, temperature, addGenerations, addCosts, addTime, onGenerationComplete }) => {
 
     const [fieldValues, setFieldValues] = useState<{ [key: string]: string }>({});
     const [imageBase64, setImageBase64] = useState<string | null>(null);
@@ -152,7 +156,6 @@ const GenerationPodComponent: React.FC<GenerationPodComponentProps> = ({ generat
     }
 
     const handleSave = async () => {
-
         if (generatingImage || generatingData || uploading) {
             return
         } else if (isPodEmpty()) {
@@ -207,6 +210,28 @@ const GenerationPodComponent: React.FC<GenerationPodComponentProps> = ({ generat
                 setUploading(false)
             }
 
+        } else if (weaviateStatus === "connected") {
+            setUploading(true)
+
+            const weaviate_response: any = await import_weaviate_data(weaviateCollectionName, fieldValuesByName, selectedTemplate, selectedImageField, prompt, imagePrompt)
+
+            if (weaviate_response.error != "") {
+                setAlertText(weaviate_response.error)
+                setAlertType("error")
+                setUploading(false)
+                setShowAlert(true);
+            } else {
+                setAlertText("Saved object to Weaviate")
+                setAlertType("success")
+                setUploading(false)
+                setShowAlert(true);
+                handleConnectWeaviate("", "", weaviateCollectionName)
+            }
+
+            resetFieldValues();
+            setImageBase64(null);
+
+
         } else {
 
             resetFieldValues();
@@ -222,7 +247,7 @@ const GenerationPodComponent: React.FC<GenerationPodComponentProps> = ({ generat
 
         const startTime = Date.now();
 
-        if (generatingImage || generatingData || (!APIEnvKeyAvailable && !APISetKey) || !generateImage) {
+        if (generatingImage || generatingData || (!APIEnvKeyAvailable) || !generateImage) {
             return;
         }
 
@@ -236,7 +261,7 @@ const GenerationPodComponent: React.FC<GenerationPodComponentProps> = ({ generat
             return;
         }
 
-        const image_generation_promise = await generateImageBasedDescription(JSON.stringify(fieldValues), imagePrompt, imageSize, imageStyle, APISetKey);
+        const image_generation_promise = await generateImageBasedDescription(JSON.stringify(fieldValues), imagePrompt, imageSize, imageStyle);
         const image_generation_results = await image_generation_promise.promise
 
         if (image_generation_results) {
@@ -278,7 +303,7 @@ const GenerationPodComponent: React.FC<GenerationPodComponentProps> = ({ generat
 
         const startTime = Date.now();
 
-        if (generatingImage || generatingData || uploading || (!APIEnvKeyAvailable && !APISetKey)) {
+        if (generatingImage || generatingData || uploading || !APIEnvKeyAvailable) {
             return;
         }
 
@@ -298,7 +323,7 @@ const GenerationPodComponent: React.FC<GenerationPodComponentProps> = ({ generat
                 id: dataField.name || dataField.id, // Replace 'id' with 'name' only if 'name' is not empty
             }));
 
-            const promise_object = await generateDataBasedPrompt(prompt, updatedDataFields, temperature, id, APISetKey);
+            const promise_object = await generateDataBasedPrompt(prompt, updatedDataFields, temperature, id);
             const results: any = await promise_object.promise;
 
             if (results) {
@@ -324,9 +349,9 @@ const GenerationPodComponent: React.FC<GenerationPodComponentProps> = ({ generat
                     setGeneratingData(false);
                     addCosts(data_cost)
 
-                    if (generateImage) {
+                    if (generateImage && selectedImageField != "None") {
                         setGeneratingImage(true);
-                        const promise_object_image = await generateImageBasedDescription(data, imagePrompt, imageSize, imageStyle, APISetKey);
+                        const promise_object_image = await generateImageBasedDescription(data, imagePrompt, imageSize, imageStyle);
                         const image_generation_results: any = await promise_object_image.promise;
 
                         if (image_generation_results) {
@@ -367,7 +392,7 @@ const GenerationPodComponent: React.FC<GenerationPodComponentProps> = ({ generat
             }
         } else if (generateImage) {
             setGeneratingImage(true);
-            const promise_object_image = await generateImageBasedDescription("", imagePrompt, imageSize, imageStyle, APISetKey);
+            const promise_object_image = await generateImageBasedDescription("", imagePrompt, imageSize, imageStyle);
             const image_generation_results: any = await promise_object_image.promise;
 
             if (image_generation_results) {
@@ -428,7 +453,7 @@ const GenerationPodComponent: React.FC<GenerationPodComponentProps> = ({ generat
                                 </div>
                             </div>
                         )}
-                        {!imageBase64 && !generatingImage && (
+                        {!imageBase64 && !generatingImage && selectedImageField != "None" && (
                             <div className='flex items-center justify-center gap-2'>
                                 <div className='flex justify-center items-center mt-1'>
                                     <button onClick={() => document.getElementById(imageInputId)?.click()} className="p-3 shadow-lg rounded-lg bg-zinc-100 text-xs font-semibold duration-300 ease-in-out transform hover:scale-105">Add Image</button>

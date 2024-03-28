@@ -4,6 +4,11 @@
 - Clear API Key
 - Easter Egg
 - Add Weaviate Connector
+- Inspect Weaviate Objects
+- Add data to existing collections
+- Add new collections
+- Improved secure cookie handling
+- Improved environment variable handling
 
 ## Fixed
 

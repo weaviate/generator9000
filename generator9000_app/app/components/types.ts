@@ -350,6 +350,7 @@ export const empty_template: Template = {
 
 export const clothing_template: Template = {
     name: "Clothing",
+    imageField: "img",
     prompt: "Generate a fashion clothing item product in these categories: T-Shirts, Sweaters, Trousers, Jeans, Shorts, Skirts, Dresses, Formal. Only use 1 or 2 colors, write short and precise descriptions. Be creative with the naming and the descriptions. Don't use words like Lunar, Midnight, Twilight, Ocean, Seaside or similar. ",
     imagePrompt: "Create a highly detailed and realistic image of a single clothing item with only one color combination, presented as if for an e-commerce website. The item should be either laid flat or hanging against a pure white background, with no additional items, decorations, or visual elements present. The clothing should be fully visible, capturing its texture and colors accurately, offering a clear and straightforward view suitable for online shopping.",
     datafields: [{
@@ -363,6 +364,12 @@ export const clothing_template: Template = {
         name: "brand",
         type: "text",
         values: brands
+    },
+    {
+        id: "img",
+        name: "img",
+        type: "text",
+        values: []
     },
     {
         id: "category",

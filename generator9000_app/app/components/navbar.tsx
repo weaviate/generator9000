@@ -7,6 +7,9 @@ import RiveComponent from '@rive-app/react-canvas';
 import { FaKey } from "react-icons/fa";
 import { FaGithub } from "react-icons/fa";
 import WeaviateConnectorComponent from './weaviate_connector';
+import { IoSettingsSharp } from "react-icons/io5";
+import { FaFileExport } from "react-icons/fa6";
+import { FaFileImport } from "react-icons/fa6";
 
 interface NavbarComponentProps {
     importAllFromJson: (event: React.ChangeEvent<HTMLInputElement>) => void;
@@ -84,7 +87,7 @@ const NavbarComponent: React.FC<NavbarComponentProps> = ({ weaviateStatus, gener
         <div className="navbar bg-base-100 border-gray border-b">
             <div className="flex-none gap-2 ml-4">
                 <div className="avatar">
-                    <div className="w-14 rounded-full shadow-lg">
+                    <div className="w-12 rounded-full shadow-lg">
                         <img src="justacat.gif" />
                     </div>
                 </div>
@@ -102,7 +105,7 @@ const NavbarComponent: React.FC<NavbarComponentProps> = ({ weaviateStatus, gener
             </div>
 
             <div className='flex-none justify-center items-center gap-3'>
-                {apiKeyAvailable ? (<p className='text-xs opacity-25'>OpenAI Key available</p>) : (<p className='text-xs text-red-400 font-bold'>OpenAI Key not available!</p>)}
+                {apiKeyAvailable ? (<p className='text-xs opacity-25'>OpenAI Key set</p>) : (<p className='text-xs text-red-400 font-bold'>OpenAI Key not set!</p>)}
                 <button onClick={openKeyModal} className={`btn btn-circle border-2 ${apiKeyAvailable ? " border-green-400" : "border-dashed border-red-400"}`}>
                     <FaKey />
                 </button>
@@ -116,12 +119,12 @@ const NavbarComponent: React.FC<NavbarComponentProps> = ({ weaviateStatus, gener
 
             <div className='flex-none gap-4'>
                 <div className='flex justify-center items-center'>
-                    <button onClick={() => document.getElementById("FileInputButton")?.click()} className="bg-green-400 p-4 text-xs rounded-lg shadow-lg font-bold duration-300 ease-in-out transform hover:scale-105">Import JSON</button>
+                    <button onClick={() => document.getElementById("FileInputButton")?.click()} className="bg-green-400 p-4 text-xs rounded-lg shadow-lg font-bold duration-300 ease-in-out transform hover:scale-105"><FaFileImport size={15} /></button>
                     <input id="FileInputButton" type="file" className="hidden" onChange={importAllFromJson} />
 
                 </div>
                 <div className="dropdown dropdown-bottom dropdown-end">
-                    <button tabIndex={0} role="button" className=" bg-blue-400 p-4 text-xs rounded-lg shadow-lg font-bold duration-300 ease-in-out transform hover:scale-105">Export</button>
+                    <button tabIndex={0} role="button" className=" bg-blue-400 p-4 text-xs rounded-lg shadow-lg font-bold duration-300 ease-in-out transform hover:scale-105"><FaFileExport size={15} /></button>
                     <ul tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
                         <li onClick={handleExportJSON}><a>Export Data</a></li>
                         <li onClick={exportAllToJson}><a>Export Template & Data</a></li>
@@ -129,7 +132,7 @@ const NavbarComponent: React.FC<NavbarComponentProps> = ({ weaviateStatus, gener
                 </div>
 
                 <div className="dropdown dropdown-bottom dropdown-end">
-                    <button tabIndex={0} role="button" className=" bg-gray-300 p-4 text-xs rounded-lg shadow-lg font-bold duration-300 ease-in-out transform hover:scale-105">Settings</button>
+                    <button tabIndex={0} role="button" className=" bg-gray-300 p-4 text-xs rounded-lg shadow-lg font-bold duration-300 ease-in-out transform hover:scale-105"><IoSettingsSharp size={15} /></button>
                     <ul tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
                         <li onClick={() => { openExportModal() }}><a>Save Settings</a></li>
                         <li onClick={() => { openSettingsModal() }}><a>Generation Settings</a></li>

@@ -13,7 +13,7 @@ You can tinker with all the settings, generate data objects, evaluate them, and 
 
 **Access Generator9000 here:** https://www.gen9000.co/
 
-> 🔑 You can enter your OpenAI key right in the frontend. It'll be saved in your browser's local storage, making it super easy to pick up right where you left off next time you fire up the app.
+> 🔑 You can enter your OpenAI key right in the frontend. It'll be saved as a httpOnly and secure cookie, making it super easy to pick up right where you left off next time you fire up the app. If you don't feel comfortable giving random websites your credentials, you can also host Generator9000 locally!
 
 # 🚀 Getting Started
 
@@ -31,9 +31,11 @@ Before you dive in, make sure your machine is running Node `v21.3.0` or higher. 
 
 ``` npm install ```
 
-4. Create a `.env.local` file and add your OpenAI API key:
+4. Create a `.env.local` file and add your OpenAI API key. If you want to use Weaviate, you can also add Weaviate variables:
 
 ``` OPENAI_API_KEY=YOUR_KEY ```
+``` WEAVIATE_URL=YOUR_URL ```
+``` WEAVIATE_API_KEY=YOUR_KEY ```
 
 5. Start the development server and start generating over 9000:
 
