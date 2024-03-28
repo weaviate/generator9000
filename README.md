@@ -5,7 +5,7 @@
 
 ![Demo of Generator9000](https://github.com/weaviate/generator9000/blob/main/img/gen9000.gif)
 
-Welcome to Generator9000! It's an open-source web app that's all about creating data objects with a twist. We use Generative AI (GPT4 from OpenAI) to not only generate data objects with specific fields but also to create images based on these data objects. 🚀
+Welcome to Generator9000! It's an open-source web app that's all about creating synthetic data objects tailored to your use case. We use Generative AI (GPT4 from OpenAI) to not only generate data objects with specific fields but also to create images based on these data objects. 🚀
 
 This tool is perfect if you're looking to build new, high-quality datasets for demos or Proof of Concept (PoC) projects, especially in these fast-evolving times. It's user-friendly, giving you full control over the prompts for both data and images, and other settings that directly affect the Large Language Models (LLM) you're working with.
 
