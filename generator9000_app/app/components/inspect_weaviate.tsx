@@ -71,7 +71,7 @@ const InspectWeaviateComponent: React.FC<InspectWeaviateProps> = ({ fetchingWeav
             )}
             <div className='grid grid-cols-3 gap-4 justify-center items-center'>
                 {weaviateData.map((fieldValues, index) => (
-                    <ObjectCard index={index} fieldValues={fieldValues} selectedImageField={selectedImageField} />
+                    <ObjectCard key={"Weaviate_Object_" + index} index={index} fieldValues={fieldValues} selectedImageField={selectedImageField} />
                 ))}
             </div>
         </div>

@@ -50,7 +50,7 @@ const InspectModeComponent: React.FC<InspectComponentProps> = ({ generatedObject
             </div>
             <div className='grid grid-cols-3 gap-4 justify-center items-center'>
                 {generatedObjects.map((fieldValues, index) => (
-                    <ObjectCard index={index} fieldValues={fieldValues} selectedImageField={selectedImageField} />
+                    <ObjectCard key={"Inspect_Object_" + index} index={index} fieldValues={fieldValues} selectedImageField={selectedImageField} />
                 ))}
 
                 <dialog id="delete_inpect_object_modal" className="modal">
