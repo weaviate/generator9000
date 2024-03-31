@@ -1,5 +1,5 @@
 # 🐈 Welcome to Generator 9000
-## ✨ Your Starting Point for AI-Synthetic Data
+## ✨ Your Starting Point for AI-Synthetic Data Generation
 
 [![Start generating](https://img.shields.io/badge/Check%20out%20the%20app!-yellow?&style=flat-square&logo=react&logoColor=white)](https://www.gen9000.co/?template=Empty)
 
